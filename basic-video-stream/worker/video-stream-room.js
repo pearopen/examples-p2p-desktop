@@ -1,14 +1,20 @@
 import Autobase from 'autobase'
 import b4a from 'b4a'
 import BlindPairing from 'blind-pairing'
+import fs from 'fs'
+import getMimeType from 'get-mime-type'
+import Hyperblobs from 'hyperblobs'
+import BlobServer from 'hypercore-blob-server'
+import idEnc from 'hypercore-id-encoding'
 import HyperDB from 'hyperdb'
+import path from 'path'
 import ReadyResource from 'ready-resource'
 import z32 from 'z32'
 
-import * as BasicChatDispatch from '../spec/dispatch'
-import BasicChatDb from '../spec/db'
+import * as BasicVideoStreamDispatch from '../spec/dispatch'
+import BasicVideoStreamDb from '../spec/db'
 
-export default class ChatRoom extends ReadyResource {
+export default class VideoStreamRoom extends ReadyResource {
   constructor (store, swarm, invite) {
     super()
 
@@ -19,7 +25,7 @@ export default class ChatRoom extends ReadyResource {
     this.pairing = new BlindPairing(swarm)
 
     /** @type {{ add: function(string, function(any, { view: HyperDB, base: Autobase })) }} */
-    this.router = new BasicChatDispatch.Router()
+    this.router = new BasicVideoStreamDispatch.Router()
     this._setupRouter()
 
     this.localBase = null
@@ -27,6 +33,10 @@ export default class ChatRoom extends ReadyResource {
 
     this.base = null
     this.pairMember = null
+
+    this.blobs = null
+    this.blobServer = null
+    this.blobsCores = {}
   }
 
   async _open () {
@@ -71,7 +81,7 @@ export default class ChatRoom extends ReadyResource {
       discoveryKey: this.base.discoveryKey,
       /** @type {function(import('blind-pairing-core').MemberRequest)} */
       onadd: async (request) => {
-        const inv = await this.view.findOne('@basic-chat/invites', {})
+        const inv = await this.view.findOne('@basic-video-stream/invites', {})
         if (inv === null || !b4a.equals(inv.id, request.inviteId)) {
           return
         }
@@ -83,9 +93,17 @@ export default class ChatRoom extends ReadyResource {
         })
       }
     })
+
+    this.blobs = new Hyperblobs(this.store.get({ name: 'blobs' }))
+    await this.blobs.ready()
+
+    this.blobServer = new BlobServer(this.store.session())
+    await this.blobServer.listen()
   }
 
   async _close () {
+    await this.blobServer?.close()
+    await this.blobs?.close()
     await this.pairMember?.close()
     await this.localBase?.close()
     await this.base?.close()
@@ -93,7 +111,7 @@ export default class ChatRoom extends ReadyResource {
   }
 
   _openBase (store) {
-    return HyperDB.bee(store.get('view'), BasicChatDb, { extension: false, autoUpdate: true })
+    return HyperDB.bee(store.get('view'), BasicVideoStreamDb, { extension: false, autoUpdate: true })
   }
 
   async _closeBase (view) {
@@ -108,14 +126,17 @@ export default class ChatRoom extends ReadyResource {
   }
 
   _setupRouter () {
-    this.router.add('@basic-chat/add-writer', async (data, context) => {
+    this.router.add('@basic-video-stream/add-writer', async (data, context) => {
       await context.base.addWriter(data.key)
     })
-    this.router.add('@basic-chat/add-invite', async (data, context) => {
-      await context.view.insert('@basic-chat/invites', data)
+    this.router.add('@basic-video-stream/add-invite', async (data, context) => {
+      await context.view.insert('@basic-video-stream/invites', data)
     })
-    this.router.add('@basic-chat/add-message', async (data, context) => {
-      await context.view.insert('@basic-chat/messages', data)
+    this.router.add('@basic-video-stream/add-message', async (data, context) => {
+      await context.view.insert('@basic-video-stream/messages', data)
+    })
+    this.router.add('@basic-video-stream/add-video', async (data, context) => {
+      await context.view.insert('@basic-video-stream/videos', data)
     })
   }
 
@@ -135,32 +156,70 @@ export default class ChatRoom extends ReadyResource {
   }
 
   async getInvite () {
-    const existing = await this.view.findOne('@basic-chat/invites', {})
+    const existing = await this.view.findOne('@basic-video-stream/invites', {})
     if (existing) {
       return z32.encode(existing.invite)
     }
     const { id, invite, publicKey, expires } = BlindPairing.createInvite(this.base.key)
     const record = { id, invite, publicKey, expires }
     await this.base.append(
-      BasicChatDispatch.encode('@basic-chat/add-invite', record)
+      BasicVideoStreamDispatch.encode('@basic-video-stream/add-invite', record)
     )
     return z32.encode(record.invite)
   }
 
   async addWriter (key) {
     await this.base.append(
-      BasicChatDispatch.encode('@basic-chat/add-writer', { key: b4a.isBuffer(key) ? key : b4a.from(key) })
+      BasicVideoStreamDispatch.encode('@basic-video-stream/add-writer', { key: b4a.isBuffer(key) ? key : b4a.from(key) })
     )
   }
 
   async getMessages ({ reverse = true, limit = 100 } = {}) {
-    return await this.view.find('@basic-chat/messages', { reverse, limit }).toArray()
+    return await this.view.find('@basic-video-stream/messages', { reverse, limit }).toArray()
   }
 
   async addMessage (text, info) {
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      BasicChatDispatch.encode('@basic-chat/add-message', { id, text, info })
+      BasicVideoStreamDispatch.encode('@basic-video-stream/add-message', { id, text, info })
+    )
+  }
+
+  async getVideos ({ reverse = true, limit = 100 } = {}) {
+    const videos = await this.view.find('@basic-video-stream/videos', { reverse, limit }).toArray()
+    for (const item of videos) {
+      if (!this.blobsCores[item.blob.key]) {
+        const blobsCore = this.store.get({ key: idEnc.decode(item.blob.key) })
+        this.blobsCores[item.blob.key] = blobsCore
+        await blobsCore.ready()
+        this.swarm.join(blobsCore.discoveryKey)
+      }
+    }
+    return videos.map(item => {
+      const link = this.blobServer.getLink(item.blob.key, { blob: item.blob, type: item.type })
+      return { ...item, link }
+    })
+  }
+
+  async addVideo (filePath, info) {
+    const name = path.basename(filePath)
+    const type = getMimeType(name)
+    if (!type || !type.startsWith('video/')) {
+      throw new Error('Only video files are allowed')
+    }
+
+    const rs = fs.createReadStream(filePath)
+    const ws = this.blobs.createWriteStream()
+    await new Promise((resolve, reject) => {
+      ws.on('error', reject)
+      ws.on('close', resolve)
+      rs.pipe(ws)
+    })
+    const blob = { key: idEnc.normalize(this.blobs.core.key), ...ws.id }
+
+    const id = Math.random().toString(16).slice(2)
+    await this.base.append(
+      BasicVideoStreamDispatch.encode('@basic-video-stream/add-video', { id, name, type, blob, info })
     )
   }
 }

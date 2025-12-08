@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-video-stream/add-writer",
+      "requestType": "@basic-video-stream/writers",
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-video-stream/add-invite",
+      "requestType": "@basic-video-stream/invites",
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-video-stream/add-message",
+      "requestType": "@basic-video-stream/messages",
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-video-stream/add-video",
+      "requestType": "@basic-video-stream/videos",
+      "version": 1
+    }
+  ]
+}

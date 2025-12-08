@@ -1,6 +1,6 @@
-# Basic Chat
+# Basic Video Stream
 
-- P2P basic chat app running in desktop environment
+- P2P basic video stream app running in desktop environment
 
 - Stack: holepunch, bare, pear, autobase, hyperdb, blind-pairing, hyperswarm, corestore
 

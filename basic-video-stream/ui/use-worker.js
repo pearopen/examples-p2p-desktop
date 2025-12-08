@@ -7,6 +7,7 @@ const pipe = pearPipe()
 export default function useWorker () {
   const [invite, setInvite] = useState('')
   const [messages, setMessages] = useState([])
+  const [videos, setVideos] = useState([])
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -20,6 +21,8 @@ export default function useWorker () {
             setInvite(obj.data)
           } else if (obj.tag === 'messages') {
             setMessages(obj.data)
+          } else if (obj.tag === 'videos') {
+            setVideos(obj.data)
           } else if (obj.tag === 'error') {
             console.log(obj.data)
             setError(obj.data)
@@ -36,9 +39,11 @@ export default function useWorker () {
 
   return {
     invite,
+    videos,
     messages,
     error,
     addMessage: (message) => write('add-message', message),
+    addVideo: (filePath) => write('add-video', filePath),
     clearError: () => setError('')
   }
 }
