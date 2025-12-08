@@ -1,0 +1,62 @@
+{
+  "name": "basic-chat",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "index.js",
+  "pear": {
+    "pre": "pear-electron/pre",
+    "stage": {
+      "ignore": [
+        ".git",
+        ".github",
+        ".gitignore",
+        ".swcrc",
+        ".swcrcdev",
+        "ui",
+        "input.css",
+        "README.md",
+        "schema.js"
+      ]
+    },
+    "gui": {
+      "main": "index.html",
+      "width": 1000,
+      "height": 500,
+      "minWidth": 500,
+      "backgroundColor": "#1F2430"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf build",
+    "build:db": "node schema.js",
+    "build:swc": "swc ui -d build --copy-files",
+    "build:tailwind": "npx @tailwindcss/cli -i input.css -o output.css",
+    "build": "npm run build:tailwind && npm run build:swc",
+    "start": "pear run ."
+  },
+  "dependencies": {
+    "autobase": "^7.24.0",
+    "b4a": "^1.7.3",
+    "blind-pairing": "^2.3.1",
+    "corestore": "^7.7.0",
+    "hyperdb": "^4.19.1",
+    "hyperdispatch": "^1.4.4",
+    "hyperswarm": "^4.16.0",
+    "newline-decoder": "^1.0.2",
+    "pear-bridge": "^1.2.4",
+    "pear-electron": "^1.7.25",
+    "pear-pipe": "^1.0.6",
+    "pear-run": "^1.0.8",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "ready-resource": "^1.2.0",
+    "z32": "^1.1.0"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.7.9",
+    "@swc/core": "^1.15.3",
+    "@tailwindcss/cli": "^4.1.17",
+    "pear-interface": "^1.1.0",
+    "tailwindcss": "^4.1.17"
+  }
+}

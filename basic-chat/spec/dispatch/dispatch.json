@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-chat/add-writer",
+      "requestType": "@basic-chat/writers",
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-chat/add-invite",
+      "requestType": "@basic-chat/invites",
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-chat/add-message",
+      "requestType": "@basic-chat/messages",
+      "version": 1
+    }
+  ]
+}
