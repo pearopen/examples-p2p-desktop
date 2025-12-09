@@ -1,0 +1,32 @@
+[
+  {
+    "test": ".*\\.js$",
+    "jsc": {
+      "baseUrl":"./",
+      "paths": {
+         "@/*": ["ui/*"]
+      },
+      "parser": {
+        "syntax": "ecmascript",
+      }
+    }
+  },
+  {
+    "test": ".*\\.jsx$",
+    "jsc": {
+      "baseUrl":"./",
+      "paths": {
+         "@/*": ["ui/*"]
+      },
+      "parser": {
+        "syntax": "ecmascript",
+        "jsx": true
+      },
+      "transform": {
+        "react": {
+          "runtime": "automatic"
+        }
+      }
+    }
+  }
+]

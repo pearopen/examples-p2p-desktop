@@ -1,0 +1,214 @@
+import Autobase from 'autobase'
+import b4a from 'b4a'
+import BlindPairing from 'blind-pairing'
+import debounce from 'debounceify'
+import idEnc from 'hypercore-id-encoding'
+import HyperDB from 'hyperdb'
+import Hyperdrive from 'hyperdrive'
+import LocalDrive from 'localdrive'
+import path from 'path'
+import ReadyResource from 'ready-resource'
+import z32 from 'z32'
+
+import * as DriveDispatch from '../spec/dispatch'
+import DriveDb from '../spec/db'
+
+export default class DriveRoom extends ReadyResource {
+  constructor (myDrivePath, sharedDrivesPath, store, swarm, invite, opts = {}) {
+    super()
+
+    this.myDrivePath = myDrivePath
+    this.sharedDrivesPath = sharedDrivesPath
+    this.store = store
+    this.swarm = swarm
+    this.invite = invite
+    this.name = opts.name
+
+    this.pairing = new BlindPairing(swarm)
+
+    /** @type {{ add: function(string, function(any, { view: HyperDB, base: Autobase })) }} */
+    this.router = new DriveDispatch.Router()
+    this._setupRouter()
+
+    this.localBase = null
+    this.localKey = null
+
+    this.base = null
+    this.pairMember = null
+
+    this.myLocalDrive = new LocalDrive(myDrivePath)
+    this.myDrive = new Hyperdrive(this.store)
+    this.myInterval = null
+
+    this.localDrives = {}
+    this.drives = {}
+  }
+
+  async _open () {
+    const downloadSharedDrives = debounce(() => this._downloadSharedDrives())
+
+    const isEmpty = await this.isEmptyBase()
+    let key
+    let encryptionKey
+    if (isEmpty && this.invite) {
+      const res = await new Promise((resolve) => {
+        this.pairing.addCandidate({
+          invite: z32.decode(this.invite),
+          userData: this.localKey,
+          onadd: resolve
+        })
+      })
+      key = res.key
+      encryptionKey = res.encryptionKey
+    }
+
+    // if base is not initialized, key and encryptionKey must be provided
+    // if base is already initialized in this store namespace, key and encryptionKey can be omitted
+    this.base = new Autobase(this.store, key, {
+      encrypt: true,
+      encryptionKey,
+      open: this._openBase.bind(this),
+      close: this._closeBase.bind(this),
+      apply: this._applyBase.bind(this)
+    })
+
+    const writablePromise = new Promise((resolve) => {
+      this.base.on('update', () => {
+        if (this.base.writable) resolve()
+        if (!this.base._interrupting) downloadSharedDrives()
+      })
+    })
+    await this.base.ready()
+    this.swarm.join(this.base.discoveryKey)
+    if (!this.base.writable) await writablePromise
+
+    this.view.core.download({ start: 0, end: -1 })
+
+    this.pairMember = this.pairing.addMember({
+      discoveryKey: this.base.discoveryKey,
+      /** @type {function(import('blind-pairing-core').MemberRequest)} */
+      onadd: async (request) => {
+        const inv = await this.view.findOne('@basic-file-sharing/invites', {})
+        if (inv === null || !b4a.equals(inv.id, request.inviteId)) {
+          return
+        }
+        request.open(inv.publicKey)
+        await this.addWriter(request.userData)
+        request.confirm({
+          key: this.base.key,
+          encryptionKey: this.base.encryptionKey
+        })
+      }
+    })
+
+    await downloadSharedDrives()
+    await this._uploadMyDrive()
+  }
+
+  async _close () {
+    clearInterval(this.myInterval)
+    await this.pairMember?.close()
+    await this.localBase?.close()
+    await this.base?.close()
+    await this.pairing.close()
+  }
+
+  _openBase (store) {
+    return HyperDB.bee(store.get('view'), DriveDb, { extension: false, autoUpdate: true })
+  }
+
+  async _closeBase (view) {
+    await view.close()
+  }
+
+  async _applyBase (nodes, view, base) {
+    for (const node of nodes) {
+      await this.router.dispatch(node.value, { view, base })
+    }
+    await view.flush()
+  }
+
+  _setupRouter () {
+    this.router.add('@basic-file-sharing/add-writer', async (data, context) => {
+      await context.base.addWriter(data.key)
+    })
+    this.router.add('@basic-file-sharing/add-invite', async (data, context) => {
+      await context.view.insert('@basic-file-sharing/invites', data)
+    })
+    this.router.add('@basic-file-sharing/add-drive', async (data, context) => {
+      await context.view.insert('@basic-file-sharing/drives', data)
+    })
+  }
+
+  async _uploadMyDrive () {
+    await this.myDrive.ready()
+    this.addDrive(this.myDrive.key, { name: this.name })
+    this.swarm.join(this.myDrive.discoveryKey)
+
+    const mirror = debounce(() => this.myLocalDrive.mirror(this.myDrive).done())
+    this.myInterval = setInterval(() => mirror(), 1000 * 5)
+  }
+
+  async _downloadSharedDrives () {
+    const drives = await this.getDrives()
+    await Promise.all(drives.map(async (item) => {
+      const key = idEnc.normalize(item.key)
+      if (this.drives[key]) return
+
+      const local = new LocalDrive(path.join(this.sharedDrivesPath, key))
+      this.localDrives[key] = local
+      const drive = key === idEnc.normalize(this.myDrive.key) ? this.myDrive : new Hyperdrive(this.store, item.key)
+      this.drives[key] = drive
+
+      const mirror = debounce(() => drive.mirror(local).done())
+      drive.core.on('append', () => mirror())
+
+      await drive.ready()
+      this.swarm.join(drive.discoveryKey)
+    }))
+  }
+
+  /** @type {HyperDB} */
+  get view () {
+    return this.base.view
+  }
+
+  async isEmptyBase () {
+    const baseLocal = Autobase.getLocalCore(this.store)
+    this.localBase = baseLocal
+    await baseLocal.ready()
+    this.localKey = baseLocal.key
+    const isEmpty = baseLocal.length === 0
+    await baseLocal.close()
+    return isEmpty
+  }
+
+  async getInvite () {
+    const existing = await this.view.findOne('@basic-file-sharing/invites', {})
+    if (existing) {
+      return z32.encode(existing.invite)
+    }
+    const { id, invite, publicKey, expires } = BlindPairing.createInvite(this.base.key)
+    const record = { id, invite, publicKey, expires }
+    await this.base.append(
+      DriveDispatch.encode('@basic-file-sharing/add-invite', record)
+    )
+    return z32.encode(record.invite)
+  }
+
+  async addWriter (key) {
+    await this.base.append(
+      DriveDispatch.encode('@basic-file-sharing/add-writer', { key: b4a.isBuffer(key) ? key : b4a.from(key) })
+    )
+  }
+
+  async getDrives ({ reverse = true, limit = 100 } = {}) {
+    return await this.view.find('@basic-file-sharing/drives', { reverse, limit }).toArray()
+  }
+
+  async addDrive (key, info) {
+    await this.base.append(
+      DriveDispatch.encode('@basic-file-sharing/add-drive', { key, info })
+    )
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-file-sharing/add-writer",
+      "requestType": "@basic-file-sharing/writers",
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-file-sharing/add-invite",
+      "requestType": "@basic-file-sharing/invites",
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-file-sharing/add-drive",
+      "requestType": "@basic-file-sharing/drives",
+      "version": 1
+    }
+  ]
+}
