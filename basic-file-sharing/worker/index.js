@@ -54,6 +54,15 @@ export default class Worker extends ReadyResource {
     this._write('invite', await this.room.getInvite())
 
     this.intervalFiles = setInterval(async () => {
+      const myDriveFiles = {
+        key: 'my-drive (add your files here)',
+        dir: `file://${this.myDrivePath}`,
+        files: (await fs.promises.readdir(this.myDrivePath)).map((name) => ({
+          name,
+          url: `file://${path.join(this.myDrivePath, name)}`
+        }))
+      }
+
       const drives = await this.room.getDrives()
       const driveFiles = await Promise.all(drives.map(async (drive) => {
         const key = idEnc.normalize(drive.key)
@@ -69,7 +78,7 @@ export default class Worker extends ReadyResource {
           files: files.map((name) => ({ name, url: `file://${path.join(dir, name)}` }))
         }
       }))
-      this._write('files', driveFiles)
+      this._write('files', [myDriveFiles, ...driveFiles])
     }, 2000)
   }
 

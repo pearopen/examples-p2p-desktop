@@ -9,7 +9,7 @@ function App () {
     <div className='bg-blue-500 min-h-screen p-4'>
       <div className='mb-2'>{`Invite: ${invite}`}</div>
       <div className='bg-white p-4'>
-        <h2 className='text-lg font-bold mb-2'>Shared Drives</h2>
+        <h2 className='text-lg font-bold mb-2'>Drives</h2>
         <ul>
           {files.map((item) => (
             <li key={item.key} className='border-b py-1'>
