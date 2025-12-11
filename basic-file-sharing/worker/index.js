@@ -45,10 +45,10 @@ export default class Worker extends ReadyResource {
   async _open () {
     await this.store.ready()
 
-    console.log(`My drive: ${this.myDrivePath}`)
-    console.log(`Shared drives: ${this.sharedDrivesPath}`)
     await fs.promises.mkdir(this.myDrivePath, { recursive: true })
     await fs.promises.mkdir(this.sharedDrivesPath, { recursive: true })
+    console.log(`My drive: ${this.myDrivePath}`)
+    console.log(`Shared drives: ${this.sharedDrivesPath}`)
 
     await this.room.ready()
     this._write('invite', await this.room.getInvite())
@@ -82,11 +82,11 @@ export default class Worker extends ReadyResource {
     }, 2000)
   }
 
-  _close () {
+  async _close () {
     clearInterval(this.intervalFiles)
-    this.room.close()
-    this.swarm.destroy()
-    this.store.close()
+    await this.room.close()
+    await this.swarm.destroy()
+    await this.store.close()
   }
 
   _write (tag, data) {

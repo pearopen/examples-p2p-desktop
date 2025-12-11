@@ -59,10 +59,10 @@ export default class Worker extends ReadyResource {
     })
   }
 
-  _close () {
-    this.room.close()
-    this.swarm.destroy()
-    this.store.close()
+  async _close () {
+    await this.room.close()
+    await this.swarm.destroy()
+    await this.store.close()
   }
 
   async _getMessages () {
