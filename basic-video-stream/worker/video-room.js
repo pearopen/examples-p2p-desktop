@@ -11,10 +11,10 @@ import path from 'path'
 import ReadyResource from 'ready-resource'
 import z32 from 'z32'
 
-import * as BasicVideoStreamDispatch from '../spec/dispatch'
-import BasicVideoStreamDb from '../spec/db'
+import * as VideoDispatch from '../spec/dispatch'
+import VideoDb from '../spec/db'
 
-export default class VideoStreamRoom extends ReadyResource {
+export default class VideoRoom extends ReadyResource {
   constructor (store, swarm, invite) {
     super()
 
@@ -25,7 +25,7 @@ export default class VideoStreamRoom extends ReadyResource {
     this.pairing = new BlindPairing(swarm)
 
     /** @type {{ add: function(string, function(any, { view: HyperDB, base: Autobase })) }} */
-    this.router = new BasicVideoStreamDispatch.Router()
+    this.router = new VideoDispatch.Router()
     this._setupRouter()
 
     this.localBase = Autobase.getLocalCore(this.store)
@@ -110,7 +110,7 @@ export default class VideoStreamRoom extends ReadyResource {
   }
 
   _openBase (store) {
-    return HyperDB.bee(store.get('view'), BasicVideoStreamDb, { extension: false, autoUpdate: true })
+    return HyperDB.bee(store.get('view'), VideoDb, { extension: false, autoUpdate: true })
   }
 
   async _closeBase (view) {
@@ -152,14 +152,14 @@ export default class VideoStreamRoom extends ReadyResource {
     const { id, invite, publicKey, expires } = BlindPairing.createInvite(this.base.key)
     const record = { id, invite, publicKey, expires }
     await this.base.append(
-      BasicVideoStreamDispatch.encode('@basic-video-stream/add-invite', record)
+      VideoDispatch.encode('@basic-video-stream/add-invite', record)
     )
     return z32.encode(record.invite)
   }
 
   async addWriter (key) {
     await this.base.append(
-      BasicVideoStreamDispatch.encode('@basic-video-stream/add-writer', { key: b4a.isBuffer(key) ? key : b4a.from(key) })
+      VideoDispatch.encode('@basic-video-stream/add-writer', { key: b4a.isBuffer(key) ? key : b4a.from(key) })
     )
   }
 
@@ -170,7 +170,7 @@ export default class VideoStreamRoom extends ReadyResource {
   async addMessage (text, info) {
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      BasicVideoStreamDispatch.encode('@basic-video-stream/add-message', { id, text, info })
+      VideoDispatch.encode('@basic-video-stream/add-message', { id, text, info })
     )
   }
 
@@ -208,7 +208,7 @@ export default class VideoStreamRoom extends ReadyResource {
 
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      BasicVideoStreamDispatch.encode('@basic-video-stream/add-video', { id, name, type, blob, info })
+      VideoDispatch.encode('@basic-video-stream/add-video', { id, name, type, blob, info })
     )
   }
 }

@@ -4,7 +4,7 @@ import NewlineDecoder from 'newline-decoder'
 import { command, flag } from 'paparam'
 import ReadyResource from 'ready-resource'
 
-import VideoStreamRoom from './video-stream-room'
+import VideoRoom from './video-room'
 
 const cmd = command('basic-video-stream',
   flag('--invite|-i <invite>', 'Room invite'),
@@ -26,7 +26,7 @@ export default class Worker extends ReadyResource {
     this.swarm = new Hyperswarm()
     this.swarm.on('connection', (conn) => this.store.replicate(conn))
 
-    this.room = new VideoStreamRoom(this.store, this.swarm, this.invite)
+    this.room = new VideoRoom(this.store, this.swarm, this.invite)
     this.room.on('update', async () => {
       await this._getMessages()
       await this._getVideos()
