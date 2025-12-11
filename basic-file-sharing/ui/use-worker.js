@@ -38,6 +38,7 @@ export default function useWorker () {
     invite,
     files,
     error,
+    addFile: (file) => write('add-file', file),
     clearError: () => setError('')
   }
 }

@@ -2,6 +2,7 @@ import Corestore from 'corestore'
 import fs from 'fs'
 import idEnc from 'hypercore-id-encoding'
 import Hyperswarm from 'hyperswarm'
+import NewlineDecoder from 'newline-decoder'
 import { command, flag } from 'paparam'
 import path from 'path'
 import ReadyResource from 'ready-resource'
@@ -51,6 +52,22 @@ export default class Worker extends ReadyResource {
     console.log(`Shared drives: ${this.sharedDrivesPath}`)
 
     await this.room.ready()
+
+    const lineDecoder = new NewlineDecoder()
+    this.pipe.on('data', async (data) => {
+      const str = Buffer.from(data).toString()
+      for (const line of lineDecoder.push(str)) {
+        try {
+          const obj = JSON.parse(line)
+          if (obj.tag === 'add-file') {
+            await fs.promises.copyFile(obj.data.uri, path.join(this.myDrivePath, obj.data.name))
+          }
+        } catch (err) {
+          this._write('error', `${line} ~ ${err}`)
+        }
+      }
+    })
+
     this._write('invite', await this.room.getInvite())
 
     this.intervalFiles = setInterval(async () => {
