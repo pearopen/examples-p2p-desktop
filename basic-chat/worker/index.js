@@ -32,10 +32,7 @@ export default class Worker extends ReadyResource {
 
   async _open () {
     await this.store.ready()
-
     await this.room.ready()
-    this._write('invite', await this.room.getInvite())
-    await this._getMessages()
 
     const lineDecoder = new NewlineDecoder()
     this.pipe.on('data', async (data) => {
@@ -51,6 +48,9 @@ export default class Worker extends ReadyResource {
         }
       }
     })
+
+    this._write('invite', await this.room.getInvite())
+    await this._getMessages()
   }
 
   async _close () {

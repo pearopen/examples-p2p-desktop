@@ -28,26 +28,28 @@ export default class VideoStreamRoom extends ReadyResource {
     this.router = new BasicVideoStreamDispatch.Router()
     this._setupRouter()
 
-    this.localBase = null
-    this.localKey = null
-
+    this.localBase = Autobase.getLocalCore(this.store)
     this.base = null
     this.pairMember = null
 
-    this.blobs = null
-    this.blobServer = null
+    this.blobs = new Hyperblobs(this.store.get({ name: 'blobs' }))
+    this.blobServer = new BlobServer(this.store.session())
     this.blobsCores = {}
   }
 
   async _open () {
-    const isEmpty = await this.isEmptyBase()
+    await this.localBase.ready()
+    const localKey = this.localBase.key
+    const isEmpty = this.localBase.length === 0
+    await this.localBase.close()
+
     let key
     let encryptionKey
     if (isEmpty && this.invite) {
       const res = await new Promise((resolve) => {
         this.pairing.addCandidate({
           invite: z32.decode(this.invite),
-          userData: this.localKey,
+          userData: localKey,
           onadd: resolve
         })
       })
@@ -94,19 +96,16 @@ export default class VideoStreamRoom extends ReadyResource {
       }
     })
 
-    this.blobs = new Hyperblobs(this.store.get({ name: 'blobs' }))
     await this.blobs.ready()
-
-    this.blobServer = new BlobServer(this.store.session())
     await this.blobServer.listen()
   }
 
   async _close () {
-    await this.blobServer?.close()
-    await this.blobs?.close()
+    await this.blobServer.close()
+    await this.blobs.close()
     await this.pairMember?.close()
-    await this.localBase?.close()
     await this.base?.close()
+    await this.localBase.close()
     await this.pairing.close()
   }
 
@@ -143,16 +142,6 @@ export default class VideoStreamRoom extends ReadyResource {
   /** @type {HyperDB} */
   get view () {
     return this.base.view
-  }
-
-  async isEmptyBase () {
-    const baseLocal = Autobase.getLocalCore(this.store)
-    this.localBase = baseLocal
-    await baseLocal.ready()
-    this.localKey = baseLocal.key
-    const isEmpty = baseLocal.length === 0
-    await baseLocal.close()
-    return isEmpty
   }
 
   async getInvite () {

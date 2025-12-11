@@ -22,22 +22,24 @@ export default class ChatRoom extends ReadyResource {
     this.router = new BasicChatDispatch.Router()
     this._setupRouter()
 
-    this.localBase = null
-    this.localKey = null
-
+    this.localBase = Autobase.getLocalCore(this.store)
     this.base = null
     this.pairMember = null
   }
 
   async _open () {
-    const isEmpty = await this.isEmptyBase()
+    await this.localBase.ready()
+    const localKey = this.localBase.key
+    const isEmpty = this.localBase.length === 0
+    await this.localBase.close()
+
     let key
     let encryptionKey
     if (isEmpty && this.invite) {
       const res = await new Promise((resolve) => {
         this.pairing.addCandidate({
           invite: z32.decode(this.invite),
-          userData: this.localKey,
+          userData: localKey,
           onadd: resolve
         })
       })
@@ -87,8 +89,8 @@ export default class ChatRoom extends ReadyResource {
 
   async _close () {
     await this.pairMember?.close()
-    await this.localBase?.close()
     await this.base?.close()
+    await this.localBase.close()
     await this.pairing.close()
   }
 
@@ -122,16 +124,6 @@ export default class ChatRoom extends ReadyResource {
   /** @type {HyperDB} */
   get view () {
     return this.base.view
-  }
-
-  async isEmptyBase () {
-    const baseLocal = Autobase.getLocalCore(this.store)
-    this.localBase = baseLocal
-    await baseLocal.ready()
-    this.localKey = baseLocal.key
-    const isEmpty = baseLocal.length === 0
-    await baseLocal.close()
-    return isEmpty
   }
 
   async getInvite () {

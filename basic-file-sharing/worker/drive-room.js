@@ -30,31 +30,31 @@ export default class DriveRoom extends ReadyResource {
     this.router = new DriveDispatch.Router()
     this._setupRouter()
 
-    this.localBase = null
-    this.localKey = null
-
+    this.localBase = Autobase.getLocalCore(this.store)
     this.base = null
     this.pairMember = null
 
     this.myLocalDrive = new LocalDrive(myDrivePath)
     this.myDrive = new Hyperdrive(this.store)
-    this.myInterval = null
+    this.uploadInterval = null
 
     this.localDrives = {}
     this.drives = {}
   }
 
   async _open () {
-    const downloadSharedDrives = debounce(() => this._downloadSharedDrives())
+    await this.localBase.ready()
+    const localKey = this.localBase.key
+    const isEmpty = this.localBase.length === 0
+    await this.localBase.close()
 
-    const isEmpty = await this.isEmptyBase()
     let key
     let encryptionKey
     if (isEmpty && this.invite) {
       const res = await new Promise((resolve) => {
         this.pairing.addCandidate({
           invite: z32.decode(this.invite),
-          userData: this.localKey,
+          userData: localKey,
           onadd: resolve
         })
       })
@@ -72,6 +72,7 @@ export default class DriveRoom extends ReadyResource {
       apply: this._applyBase.bind(this)
     })
 
+    const downloadSharedDrives = debounce(() => this._downloadSharedDrives())
     const writablePromise = new Promise((resolve) => {
       this.base.on('update', () => {
         if (this.base.writable) resolve()
@@ -106,10 +107,10 @@ export default class DriveRoom extends ReadyResource {
   }
 
   async _close () {
-    clearInterval(this.myInterval)
+    clearInterval(this.uploadInterval)
     await this.pairMember?.close()
-    await this.localBase?.close()
     await this.base?.close()
+    await this.localBase.close()
     await this.pairing.close()
   }
 
@@ -146,7 +147,7 @@ export default class DriveRoom extends ReadyResource {
     this.swarm.join(this.myDrive.discoveryKey)
 
     const mirror = debounce(() => this.myLocalDrive.mirror(this.myDrive).done())
-    this.myInterval = setInterval(() => mirror(), 1000 * 5)
+    this.uploadInterval = setInterval(() => mirror(), 1000 * 5)
   }
 
   async _downloadSharedDrives () {
@@ -171,16 +172,6 @@ export default class DriveRoom extends ReadyResource {
   /** @type {HyperDB} */
   get view () {
     return this.base.view
-  }
-
-  async isEmptyBase () {
-    const baseLocal = Autobase.getLocalCore(this.store)
-    this.localBase = baseLocal
-    await baseLocal.ready()
-    this.localKey = baseLocal.key
-    const isEmpty = baseLocal.length === 0
-    await baseLocal.close()
-    return isEmpty
   }
 
   async getInvite () {
