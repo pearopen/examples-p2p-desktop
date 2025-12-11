@@ -58,6 +58,7 @@ export default class Worker extends ReadyResource {
       const driveFiles = await Promise.all(drives.map(async (drive) => {
         const key = idEnc.normalize(drive.key)
         const dir = path.join(this.sharedDrivesPath, key)
+        await fs.promises.mkdir(dir, { recursive: true })
         const files = await fs.promises.readdir(dir, { recursive: true }).catch((err) => {
           if (err.code === 'ENOENT') return []
           throw err
