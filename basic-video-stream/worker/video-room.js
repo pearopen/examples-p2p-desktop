@@ -41,7 +41,6 @@ export default class VideoRoom extends ReadyResource {
     await this.localBase.ready()
     const localKey = this.localBase.key
     const isEmpty = this.localBase.length === 0
-    await this.localBase.close()
 
     let key
     let encryptionKey
@@ -59,6 +58,7 @@ export default class VideoRoom extends ReadyResource {
 
     // if base is not initialized, key and encryptionKey must be provided
     // if base is already initialized in this store namespace, key and encryptionKey can be omitted
+    await this.localBase.close()
     this.base = new Autobase(this.store, key, {
       encrypt: true,
       encryptionKey,
