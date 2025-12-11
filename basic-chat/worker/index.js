@@ -17,28 +17,21 @@ export default class Worker extends ReadyResource {
 
     this.pipe = pipe
     this.storage = storage
-    this.args = args
 
-    this.store = null
-    this.swarm = null
-    this.room = null
-  }
+    cmd.parse(args)
+    this.invite = cmd.flags.invite
+    this.name = cmd.flags.name || `User ${Date.now()}`
 
-  async _open () {
-    cmd.parse(this.args)
-    const {
-      invite,
-      name = `User ${Date.now()}`
-    } = cmd.flags
-
-    this.store = new Corestore(this.storage)
-    await this.store.ready()
-
+    this.store = new Corestore(storage)
     this.swarm = new Hyperswarm()
     this.swarm.on('connection', (conn) => this.store.replicate(conn))
 
-    this.room = new ChatRoom(this.store, this.swarm, invite)
+    this.room = new ChatRoom(this.store, this.swarm, this.invite)
     this.room.on('update', () => this._getMessages())
+  }
+
+  async _open () {
+    await this.store.ready()
 
     await this.room.ready()
     this._write('invite', await this.room.getInvite())
@@ -51,7 +44,7 @@ export default class Worker extends ReadyResource {
         try {
           const obj = JSON.parse(line)
           if (obj.tag === 'add-message') {
-            await this.room.addMessage(obj.data, { name, at: Date.now() })
+            await this.room.addMessage(obj.data, { name: this.name, at: Date.now() })
           }
         } catch (err) {
           this._write('error', `${line} ~ ${err}`)
@@ -61,9 +54,9 @@ export default class Worker extends ReadyResource {
   }
 
   _close () {
-    this.room?.close()
-    this.swarm?.destroy()
-    this.store?.close()
+    this.room.close()
+    this.swarm.destroy()
+    this.store.close()
   }
 
   async _getMessages () {

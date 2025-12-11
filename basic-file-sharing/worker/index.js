@@ -19,35 +19,37 @@ export default class Worker extends ReadyResource {
 
     this.pipe = pipe
     this.storage = storage
-    this.args = args
 
-    this.store = null
-    this.swarm = null
-    this.room = null
+    cmd.parse(args)
+    this.invite = cmd.flags.invite
+    this.name = cmd.flags.name || `User ${Date.now()}`
+
+    this.store = new Corestore(storage)
+    this.swarm = new Hyperswarm()
+    this.swarm.on('connection', (conn) => this.store.replicate(conn))
+
+    this.myDrivePath = path.join(this.storage, 'my-drive')
+    this.sharedDrivesPath = path.join(this.storage, 'shared-drives')
+    this.room = new DriveRoom(
+      this.myDrivePath,
+      this.sharedDrivesPath,
+      this.store,
+      this.swarm,
+      this.invite,
+      { name: this.name }
+    )
+
     this.intervalFiles = null
   }
 
   async _open () {
-    cmd.parse(this.args)
-    const {
-      invite,
-      name = `User ${Date.now()}`
-    } = cmd.flags
-
-    this.store = new Corestore(path.join(this.storage, 'store'))
     await this.store.ready()
 
-    this.swarm = new Hyperswarm()
-    this.swarm.on('connection', (conn) => this.store.replicate(conn))
+    console.log(`My drive: ${this.myDrivePath}`)
+    console.log(`Shared drives: ${this.sharedDrivesPath}`)
+    await fs.promises.mkdir(this.myDrivePath, { recursive: true })
+    await fs.promises.mkdir(this.sharedDrivesPath, { recursive: true })
 
-    const myDrivePath = path.join(this.storage, 'my-drive')
-    const sharedDrivesPath = path.join(this.storage, 'shared-drives')
-    console.log(`My drive: ${myDrivePath}`)
-    console.log(`Shared drives: ${sharedDrivesPath}`)
-    await fs.promises.mkdir(myDrivePath, { recursive: true })
-    await fs.promises.mkdir(sharedDrivesPath, { recursive: true })
-
-    this.room = new DriveRoom(myDrivePath, sharedDrivesPath, this.store, this.swarm, invite, { name })
     await this.room.ready()
     this._write('invite', await this.room.getInvite())
 
@@ -55,7 +57,7 @@ export default class Worker extends ReadyResource {
       const drives = await this.room.getDrives()
       const driveFiles = await Promise.all(drives.map(async (drive) => {
         const key = idEnc.normalize(drive.key)
-        const dir = path.join(sharedDrivesPath, key)
+        const dir = path.join(this.sharedDrivesPath, key)
         const files = await fs.promises.readdir(dir, { recursive: true }).catch((err) => {
           if (err.code === 'ENOENT') return []
           throw err
@@ -72,9 +74,9 @@ export default class Worker extends ReadyResource {
 
   _close () {
     clearInterval(this.intervalFiles)
-    this.room?.close()
-    this.swarm?.destroy()
-    this.store?.close()
+    this.room.close()
+    this.swarm.destroy()
+    this.store.close()
   }
 
   _write (tag, data) {
