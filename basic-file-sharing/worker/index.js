@@ -55,7 +55,7 @@ export default class Worker extends ReadyResource {
 
     this.intervalFiles = setInterval(async () => {
       const myDriveFiles = {
-        key: 'my-drive (add your files here)',
+        name: 'My drive (add files here)',
         dir: `file://${this.myDrivePath}`,
         files: (await fs.promises.readdir(this.myDrivePath)).map((name) => ({
           name,
@@ -73,7 +73,7 @@ export default class Worker extends ReadyResource {
           throw err
         })
         return {
-          key,
+          name: `Shared drive: ${key}`,
           dir: `file://${dir}`,
           files: files.map((name) => ({ name, url: `file://${path.join(dir, name)}` }))
         }

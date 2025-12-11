@@ -12,8 +12,8 @@ function App () {
         <h2 className='text-lg font-bold mb-2'>Drives</h2>
         <ul>
           {files.map((item) => (
-            <li key={item.key} className='border-b py-1'>
-              <div>Drive: <a className='underline text-blue-700' href={item.dir}>{item.key}</a></div>
+            <li key={item.name} className='border-b py-1'>
+              <div><a className='underline text-blue-700' href={item.dir}>{item.name}</a></div>
               <div>
                 {item.files.map((file, idx) => (
                   <div key={idx}>
