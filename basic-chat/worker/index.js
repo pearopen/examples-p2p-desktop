@@ -19,8 +19,8 @@ export default class Worker extends ReadyResource {
 
     this.pipe = pipe
     this.stream = new FramedStream(pipe)
-    this.stream.pause()
     this.rpc = new HRPC(this.stream)
+    this.stream.pause()
 
     this.storage = storage
 
@@ -41,6 +41,8 @@ export default class Worker extends ReadyResource {
     await this.store.ready()
     await this.room.ready()
 
+    console.log('Invite:', await this.room.getInvite())
+
     this.rpc.onAddMessage(async (data) => {
       await this.room.addMessage(data, { name: this.name, at: Date.now() })
     })
@@ -57,6 +59,6 @@ export default class Worker extends ReadyResource {
   async _messages () {
     const messages = await this.room.getMessages()
     messages.sort((a, b) => a.info.at - b.info.at)
-    await this.rpc.messages(messages)
+    this.rpc.messages(messages)
   }
 }
