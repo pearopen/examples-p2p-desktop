@@ -6,8 +6,8 @@ import HRPC from '../spec/hrpc'
 
 const pipe = pearPipe()
 const stream = new FramedStream(pipe)
-const rpc = new HRPC(stream)
 stream.pause()
+const rpc = new HRPC(stream)
 
 export default function useWorker () {
   const [messages, setMessages] = useState([])

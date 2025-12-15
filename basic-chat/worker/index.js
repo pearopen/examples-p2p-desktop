@@ -19,8 +19,8 @@ export default class Worker extends ReadyResource {
 
     this.pipe = pipe
     this.stream = new FramedStream(pipe)
-    this.rpc = new HRPC(this.stream)
     this.stream.pause()
+    this.rpc = new HRPC(this.stream)
 
     this.storage = storage
 
