@@ -5,19 +5,19 @@
     {
       "id": 0,
       "name": "@basic-file-sharing/add-writer",
-      "requestType": "@basic-file-sharing/writers",
+      "requestType": "@basic-file-sharing/writer",
       "version": 1
     },
     {
       "id": 1,
       "name": "@basic-file-sharing/add-invite",
-      "requestType": "@basic-file-sharing/invites",
+      "requestType": "@basic-file-sharing/invite",
       "version": 1
     },
     {
       "id": 2,
       "name": "@basic-file-sharing/add-drive",
-      "requestType": "@basic-file-sharing/drives",
+      "requestType": "@basic-file-sharing/drive",
       "version": 1
     }
   ]

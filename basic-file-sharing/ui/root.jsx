@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client'
 import Runtime from 'pear-electron'
 
-import useWorker from './use-worker'
+import useWorker from '../lib/use-worker'
 
 function App () {
-  const { invite, files, error, addFile, clearError } = useWorker()
+  const { drives, addFile } = useWorker()
 
   const handleDrop = (e) => {
     e.preventDefault()
@@ -31,7 +31,6 @@ function App () {
 
   return (
     <div className='bg-blue-500 min-h-screen p-4'>
-      <div className='mb-2'>{`Invite: ${invite}`}</div>
       <div className='bg-white p-4'>
         <h2 className='text-lg font-bold mb-2'>Drives</h2>
         <div
@@ -50,13 +49,13 @@ function App () {
           <label htmlFor='fileInput' className='cursor-pointer text-blue-500 underline'>Browse files</label>
         </div>
         <ul>
-          {files.map((item) => (
-            <li key={item.name} className='border-b py-1'>
-              <div><a className='underline text-blue-700' href={item.dir}>{item.name}</a></div>
+          {drives.map((drive, idx) => (
+            <li key={idx} className='border-b py-1'>
+              <div><a className='underline text-blue-700' href={drive.info.uri}>{drive.info.name} {drive.info.isMyDrive && '(My drive)'}</a></div>
               <div>
-                {item.files.map((file, idx) => (
+                {drive.info.files.map((file, idx) => (
                   <div key={idx}>
-                    - <a className='underline text-blue-700' href={file.url}>{file.name}</a>
+                    - <a className='underline text-blue-700' href={file.uri}>{file.name}</a>
                   </div>
                 ))}
               </div>
@@ -64,12 +63,6 @@ function App () {
           ))}
         </ul>
       </div>
-      {error && (
-        <div className='bg-red-500 text-white p-2 flex items-center justify-between'>
-          <pre>{error}</pre>
-          <button className='cursor-pointer' onClick={() => clearError()}>X</button>
-        </div>
-      )}
     </div>
   )
 }

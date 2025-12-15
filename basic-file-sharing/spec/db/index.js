@@ -15,7 +15,7 @@ function collection0_indexify (record) {
 }
 
 // '@basic-file-sharing/invites' value encoding
-const collection0_enc = getEncoding('@basic-file-sharing/invites/hyperdb#0')
+const collection0_enc = getEncoding('@basic-file-sharing/invite/hyperdb#0')
 
 // '@basic-file-sharing/invites' reconstruction function
 function collection0_reconstruct (version, keyBuf, valueBuf) {
@@ -70,7 +70,7 @@ function collection1_indexify (record) {
 }
 
 // '@basic-file-sharing/drives' value encoding
-const collection1_enc = getEncoding('@basic-file-sharing/drives/hyperdb#1')
+const collection1_enc = getEncoding('@basic-file-sharing/drive/hyperdb#1')
 
 // '@basic-file-sharing/drives' reconstruction function
 function collection1_reconstruct (version, keyBuf, valueBuf) {

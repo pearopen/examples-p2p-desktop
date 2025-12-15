@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-file-sharing/drives",
+      "request": {
+        "name": "@basic-file-sharing/drives",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-file-sharing/add-file",
+      "request": {
+        "name": "@basic-file-sharing/file",
+        "send": true
+      },
+      "version": 1
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 - P2P basic file sharing app running in desktop environment
 
-- Stack: holepunch, bare, pear, autobase, hyperdb, blind-pairing, hyperswarm, corestore, hyperdrive, localdrive
+- Stack: holepunch, bare, pear, corestore, hyperswarm, blind-pairing, hyperdb, hrpc, autobase, hyperdrive, localdrive
 
 ## Usage
 

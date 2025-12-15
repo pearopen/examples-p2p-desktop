@@ -90,19 +90,19 @@ function decode (buffer, { version = defaultVersion } = {}) {
 const route0 = {
   name: '@basic-file-sharing/add-writer',
   id: 0,
-  enc: getEncoding('@basic-file-sharing/writers')
+  enc: getEncoding('@basic-file-sharing/writer')
 }
 
 const route1 = {
   name: '@basic-file-sharing/add-invite',
   id: 1,
-  enc: getEncoding('@basic-file-sharing/invites')
+  enc: getEncoding('@basic-file-sharing/invite')
 }
 
 const route2 = {
   name: '@basic-file-sharing/add-drive',
   id: 2,
-  enc: getEncoding('@basic-file-sharing/drives')
+  enc: getEncoding('@basic-file-sharing/drive')
 }
 
 function getRouteByName (name) {

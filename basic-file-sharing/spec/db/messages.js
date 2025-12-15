@@ -11,7 +11,7 @@ const VERSION = 1
 // eslint-disable-next-line no-unused-vars
 let version = VERSION
 
-// @basic-file-sharing/writers
+// @basic-file-sharing/writer
 const encoding0 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.key)
@@ -28,7 +28,7 @@ const encoding0 = {
   }
 }
 
-// @basic-file-sharing/invites
+// @basic-file-sharing/invite
 const encoding1 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.id)
@@ -57,7 +57,7 @@ const encoding1 = {
   }
 }
 
-// @basic-file-sharing/drives
+// @basic-file-sharing/drive
 const encoding2 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.key)
@@ -84,8 +84,42 @@ const encoding2 = {
   }
 }
 
-// @basic-file-sharing/invites/hyperdb#0
-const encoding3 = {
+// @basic-file-sharing/drives
+const encoding3 = c.array(c.frame(encoding2))
+
+// @basic-file-sharing/file
+const encoding4 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.name)
+    c.string.preencode(state, m.uri)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.name)
+    c.string.encode(state, m.uri)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      name: r0,
+      uri: r1,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
+
+// @basic-file-sharing/invite/hyperdb#0
+const encoding5 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.invite)
     c.buffer.preencode(state, m.publicKey)
@@ -110,8 +144,8 @@ const encoding3 = {
   }
 }
 
-// @basic-file-sharing/drives/hyperdb#1
-const encoding4 = {
+// @basic-file-sharing/drive/hyperdb#1
+const encoding6 = {
   preencode(state, m) {
     state.end++ // max flag is 1 so always one byte
 
@@ -157,16 +191,20 @@ function getEnum(name) {
 
 function getEncoding(name) {
   switch (name) {
-    case '@basic-file-sharing/writers':
+    case '@basic-file-sharing/writer':
       return encoding0
-    case '@basic-file-sharing/invites':
+    case '@basic-file-sharing/invite':
       return encoding1
-    case '@basic-file-sharing/drives':
+    case '@basic-file-sharing/drive':
       return encoding2
-    case '@basic-file-sharing/invites/hyperdb#0':
+    case '@basic-file-sharing/drives':
       return encoding3
-    case '@basic-file-sharing/drives/hyperdb#1':
+    case '@basic-file-sharing/file':
       return encoding4
+    case '@basic-file-sharing/invite/hyperdb#0':
+      return encoding5
+    case '@basic-file-sharing/drive/hyperdb#1':
+      return encoding6
     default:
       throw new Error('Encoder not found ' + name)
   }

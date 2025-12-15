@@ -167,7 +167,7 @@ export default class DriveRoom extends ReadyResource {
     this.swarm.join(this.myDrive.discoveryKey)
 
     const mirror = debounce(() => this.myLocalDrive.mirror(this.myDrive).done())
-    this.uploadInterval = setInterval(() => mirror(), 1000 * 5)
+    this.uploadInterval = setInterval(() => mirror(), 1000)
   }
 
   /** @type {HyperDB} */

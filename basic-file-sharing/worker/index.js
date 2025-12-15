@@ -1,13 +1,14 @@
 import Corestore from 'corestore'
+import FramedStream from 'framed-stream'
 import fs from 'fs'
 import idEnc from 'hypercore-id-encoding'
 import Hyperswarm from 'hyperswarm'
-import NewlineDecoder from 'newline-decoder'
 import { command, flag } from 'paparam'
 import path from 'path'
 import ReadyResource from 'ready-resource'
 
 import DriveRoom from './drive-room'
+import HRPC from '../spec/hrpc'
 
 const cmd = command('basic-file-sharing',
   flag('--invite|-i <invite>', 'Room invite'),
@@ -19,6 +20,10 @@ export default class Worker extends ReadyResource {
     super()
 
     this.pipe = pipe
+    this.stream = new FramedStream(pipe)
+    this.rpc = new HRPC(this.stream)
+    this.stream.pause()
+
     this.storage = storage
 
     cmd.parse(args)
@@ -45,43 +50,23 @@ export default class Worker extends ReadyResource {
 
   async _open () {
     await this.store.ready()
+    await this.room.ready()
+
+    console.log('Invite:', await this.room.getInvite())
 
     await fs.promises.mkdir(this.myDrivePath, { recursive: true })
     await fs.promises.mkdir(this.sharedDrivesPath, { recursive: true })
     console.log(`My drive: ${this.myDrivePath}`)
     console.log(`Shared drives: ${this.sharedDrivesPath}`)
 
-    await this.room.ready()
-
-    const lineDecoder = new NewlineDecoder()
-    this.pipe.on('data', async (data) => {
-      const str = Buffer.from(data).toString()
-      for (const line of lineDecoder.push(str)) {
-        try {
-          const obj = JSON.parse(line)
-          if (obj.tag === 'add-file') {
-            await fs.promises.copyFile(obj.data.uri, path.join(this.myDrivePath, obj.data.name))
-          }
-        } catch (err) {
-          this._write('error', `${line} ~ ${err}`)
-        }
-      }
+    this.rpc.onAddFile(async (data) => {
+      await fs.promises.copyFile(data.uri, path.join(this.myDrivePath, data.name))
     })
-
-    this._write('invite', await this.room.getInvite())
+    this.stream.resume()
 
     this.intervalFiles = setInterval(async () => {
-      const myDriveFiles = {
-        name: 'My drive (add files here)',
-        dir: `file://${this.myDrivePath}`,
-        files: (await fs.promises.readdir(this.myDrivePath)).map((name) => ({
-          name,
-          url: `file://${path.join(this.myDrivePath, name)}`
-        }))
-      }
-
-      const drives = await this.room.getDrives()
-      const driveFiles = await Promise.all(drives.map(async (drive) => {
+      const rawDrives = await this.room.getDrives()
+      const drives = await Promise.all(rawDrives.map(async (drive) => {
         const key = idEnc.normalize(drive.key)
         const dir = path.join(this.sharedDrivesPath, key)
         await fs.promises.mkdir(dir, { recursive: true })
@@ -89,14 +74,24 @@ export default class Worker extends ReadyResource {
           if (err.code === 'ENOENT') return []
           throw err
         })
+        const isMyDrive = key === idEnc.normalize(this.room.myDrive.key)
         return {
-          name: `Shared drive: ${key}`,
-          dir: `file://${dir}`,
-          files: files.map((name) => ({ name, url: `file://${path.join(dir, name)}` }))
+          ...drive,
+          info: {
+            ...drive.info,
+            isMyDrive,
+            uri: `file://${isMyDrive ? this.myDrivePath : dir}`,
+            files: files.map((name) => ({ name, uri: `file://${path.join(dir, name)}` }))
+          }
         }
       }))
-      this._write('files', [myDriveFiles, ...driveFiles])
-    }, 2000)
+      drives.sort((a, b) => {
+        if (a.info.isMyDrive && !b.info.isMyDrive) return -1
+        if (!a.info.isMyDrive && b.info.isMyDrive) return 1
+        return a.info.name.localeCompare(b.info.name)
+      })
+      this.rpc.drives(drives)
+    }, 1000)
   }
 
   async _close () {
@@ -104,9 +99,5 @@ export default class Worker extends ReadyResource {
     await this.room.close()
     await this.swarm.destroy()
     await this.store.close()
-  }
-
-  _write (tag, data) {
-    this.pipe.write(JSON.stringify({ tag, data }) + '\n')
   }
 }

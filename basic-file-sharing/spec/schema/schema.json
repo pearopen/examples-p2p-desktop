@@ -2,7 +2,7 @@
   "version": 1,
   "schema": [
     {
-      "name": "writers",
+      "name": "writer",
       "namespace": "basic-file-sharing",
       "compact": false,
       "flagsPosition": -1,
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "name": "invites",
+      "name": "invite",
       "namespace": "basic-file-sharing",
       "compact": false,
       "flagsPosition": -1,
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "name": "drives",
+      "name": "drive",
       "namespace": "basic-file-sharing",
       "compact": false,
       "flagsPosition": 1,
@@ -57,6 +57,37 @@
           "name": "key",
           "required": true,
           "type": "buffer",
+          "version": 1
+        },
+        {
+          "name": "info",
+          "type": "json",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "drives",
+      "namespace": "basic-file-sharing",
+      "array": true,
+      "type": "@basic-file-sharing/drive"
+    },
+    {
+      "name": "file",
+      "namespace": "basic-file-sharing",
+      "compact": false,
+      "flagsPosition": 2,
+      "fields": [
+        {
+          "name": "name",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "uri",
+          "required": true,
+          "type": "string",
           "version": 1
         },
         {

@@ -8,7 +8,7 @@
       "id": 0,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-file-sharing/invites",
+      "schema": "@basic-file-sharing/invite",
       "derived": false,
       "key": [
         "id"
@@ -21,7 +21,7 @@
       "id": 1,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-file-sharing/drives",
+      "schema": "@basic-file-sharing/drive",
       "derived": false,
       "key": [
         "key"
