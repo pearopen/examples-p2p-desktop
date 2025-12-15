@@ -2,7 +2,7 @@
 
 - P2P basic video stream app running in desktop environment
 
-- Stack: holepunch, bare, pear, autobase, hyperdb, blind-pairing, hyperswarm, corestore
+- Stack: holepunch, bare, pear, corestore, hyperswarm, blind-pairing, hyperdb, hrpc, autobase, hyperblobs, hypercore-blob-server
 
 ## Usage
 

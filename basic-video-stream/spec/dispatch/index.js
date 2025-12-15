@@ -24,10 +24,10 @@ class Router {
       case '@basic-video-stream/add-invite':
         this._handler1 = handler
         break
-      case '@basic-video-stream/add-message':
+      case '@basic-video-stream/add-video':
         this._handler2 = handler
         break
-      case '@basic-video-stream/add-video':
+      case '@basic-video-stream/add-message':
         this._handler3 = handler
         break
       default:
@@ -39,8 +39,8 @@ class Router {
   _checkAll () {
     assert(this._handler0 !== null, 'Missing handler for "@basic-video-stream/add-writer"')
     assert(this._handler1 !== null, 'Missing handler for "@basic-video-stream/add-invite"')
-    assert(this._handler2 !== null, 'Missing handler for "@basic-video-stream/add-message"')
-    assert(this._handler3 !== null, 'Missing handler for "@basic-video-stream/add-video"')
+    assert(this._handler2 !== null, 'Missing handler for "@basic-video-stream/add-video"')
+    assert(this._handler3 !== null, 'Missing handler for "@basic-video-stream/add-message"')
   }
 
   async dispatch (message, context) {
@@ -97,25 +97,25 @@ function decode (buffer, { version = defaultVersion } = {}) {
 const route0 = {
   name: '@basic-video-stream/add-writer',
   id: 0,
-  enc: getEncoding('@basic-video-stream/writers')
+  enc: getEncoding('@basic-video-stream/writer')
 }
 
 const route1 = {
   name: '@basic-video-stream/add-invite',
   id: 1,
-  enc: getEncoding('@basic-video-stream/invites')
+  enc: getEncoding('@basic-video-stream/invite')
 }
 
 const route2 = {
-  name: '@basic-video-stream/add-message',
+  name: '@basic-video-stream/add-video',
   id: 2,
-  enc: getEncoding('@basic-video-stream/messages')
+  enc: getEncoding('@basic-video-stream/video')
 }
 
 const route3 = {
-  name: '@basic-video-stream/add-video',
+  name: '@basic-video-stream/add-message',
   id: 3,
-  enc: getEncoding('@basic-video-stream/videos')
+  enc: getEncoding('@basic-video-stream/message')
 }
 
 function getRouteByName (name) {
@@ -124,9 +124,9 @@ function getRouteByName (name) {
       return route0
     case '@basic-video-stream/add-invite':
       return route1
-    case '@basic-video-stream/add-message':
-      return route2
     case '@basic-video-stream/add-video':
+      return route2
+    case '@basic-video-stream/add-message':
       return route3
     default:
       throw new Error('Handler not found for name: ' + name)

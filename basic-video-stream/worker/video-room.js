@@ -163,17 +163,6 @@ export default class VideoRoom extends ReadyResource {
     )
   }
 
-  async getMessages ({ reverse = true, limit = 100 } = {}) {
-    return await this.view.find('@basic-video-stream/messages', { reverse, limit }).toArray()
-  }
-
-  async addMessage (text, info) {
-    const id = Math.random().toString(16).slice(2)
-    await this.base.append(
-      VideoDispatch.encode('@basic-video-stream/add-message', { id, text, info })
-    )
-  }
-
   async getVideos ({ reverse = true, limit = 100 } = {}) {
     const videos = await this.view.find('@basic-video-stream/videos', { reverse, limit }).toArray()
     for (const item of videos) {
@@ -186,7 +175,7 @@ export default class VideoRoom extends ReadyResource {
     }
     return videos.map(item => {
       const link = this.blobServer.getLink(item.blob.key, { blob: item.blob, type: item.type })
-      return { ...item, link }
+      return { ...item, info: { ...item.info, link } }
     })
   }
 
@@ -209,6 +198,17 @@ export default class VideoRoom extends ReadyResource {
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
       VideoDispatch.encode('@basic-video-stream/add-video', { id, name, type, blob, info })
+    )
+  }
+
+  async getMessages ({ reverse = true, limit = 100 } = {}) {
+    return await this.view.find('@basic-video-stream/messages', { reverse, limit }).toArray()
+  }
+
+  async addMessage (text, info) {
+    const id = Math.random().toString(16).slice(2)
+    await this.base.append(
+      VideoDispatch.encode('@basic-video-stream/add-message', { id, text, info })
     )
   }
 }

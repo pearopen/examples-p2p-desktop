@@ -11,7 +11,7 @@ const VERSION = 1
 // eslint-disable-next-line no-unused-vars
 let version = VERSION
 
-// @basic-video-stream/writers
+// @basic-video-stream/writer
 const encoding0 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.key)
@@ -28,7 +28,7 @@ const encoding0 = {
   }
 }
 
-// @basic-video-stream/invites
+// @basic-video-stream/invite
 const encoding1 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.id)
@@ -57,39 +57,8 @@ const encoding1 = {
   }
 }
 
-// @basic-video-stream/messages
+// @basic-video-stream/video
 const encoding2 = {
-  preencode(state, m) {
-    c.string.preencode(state, m.id)
-    c.string.preencode(state, m.text)
-    state.end++ // max flag is 1 so always one byte
-
-    if (m.info) c.json.preencode(state, m.info)
-  },
-  encode(state, m) {
-    const flags = m.info ? 1 : 0
-
-    c.string.encode(state, m.id)
-    c.string.encode(state, m.text)
-    c.uint.encode(state, flags)
-
-    if (m.info) c.json.encode(state, m.info)
-  },
-  decode(state) {
-    const r0 = c.string.decode(state)
-    const r1 = c.string.decode(state)
-    const flags = c.uint.decode(state)
-
-    return {
-      id: r0,
-      text: r1,
-      info: (flags & 1) !== 0 ? c.json.decode(state) : null
-    }
-  }
-}
-
-// @basic-video-stream/videos
-const encoding3 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.name)
@@ -127,8 +96,72 @@ const encoding3 = {
   }
 }
 
-// @basic-video-stream/invites/hyperdb#0
+// @basic-video-stream/videos
+const encoding3 = c.array(c.frame(encoding2))
+
+// @basic-video-stream/message
 const encoding4 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.id)
+    c.string.preencode(state, m.text)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.id)
+    c.string.encode(state, m.text)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      id: r0,
+      text: r1,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
+
+// @basic-video-stream/messages
+const encoding5 = c.array(c.frame(encoding4))
+
+// @basic-video-stream/add-message
+const encoding6 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.text)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      text: r0,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
+
+// @basic-video-stream/invite/hyperdb#0
+const encoding7 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.invite)
     c.buffer.preencode(state, m.publicKey)
@@ -153,36 +186,8 @@ const encoding4 = {
   }
 }
 
-// @basic-video-stream/messages/hyperdb#1
-const encoding5 = {
-  preencode(state, m) {
-    c.string.preencode(state, m.text)
-    state.end++ // max flag is 1 so always one byte
-
-    if (m.info) c.json.preencode(state, m.info)
-  },
-  encode(state, m) {
-    const flags = m.info ? 1 : 0
-
-    c.string.encode(state, m.text)
-    c.uint.encode(state, flags)
-
-    if (m.info) c.json.encode(state, m.info)
-  },
-  decode(state) {
-    const r1 = c.string.decode(state)
-    const flags = c.uint.decode(state)
-
-    return {
-      id: null,
-      text: r1,
-      info: (flags & 1) !== 0 ? c.json.decode(state) : null
-    }
-  }
-}
-
-// @basic-video-stream/videos/hyperdb#2
-const encoding6 = {
+// @basic-video-stream/video/hyperdb#1
+const encoding8 = {
   preencode(state, m) {
     c.string.preencode(state, m.name)
     c.string.preencode(state, m.type)
@@ -212,6 +217,34 @@ const encoding6 = {
       name: r1,
       type: r2,
       blob: r3,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
+
+// @basic-video-stream/message/hyperdb#2
+const encoding9 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.text)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r1 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      id: null,
+      text: r1,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
@@ -240,20 +273,26 @@ function getEnum(name) {
 
 function getEncoding(name) {
   switch (name) {
-    case '@basic-video-stream/writers':
+    case '@basic-video-stream/writer':
       return encoding0
-    case '@basic-video-stream/invites':
+    case '@basic-video-stream/invite':
       return encoding1
-    case '@basic-video-stream/messages':
+    case '@basic-video-stream/video':
       return encoding2
     case '@basic-video-stream/videos':
       return encoding3
-    case '@basic-video-stream/invites/hyperdb#0':
+    case '@basic-video-stream/message':
       return encoding4
-    case '@basic-video-stream/messages/hyperdb#1':
+    case '@basic-video-stream/messages':
       return encoding5
-    case '@basic-video-stream/videos/hyperdb#2':
+    case '@basic-video-stream/add-message':
       return encoding6
+    case '@basic-video-stream/invite/hyperdb#0':
+      return encoding7
+    case '@basic-video-stream/video/hyperdb#1':
+      return encoding8
+    case '@basic-video-stream/message/hyperdb#2':
+      return encoding9
     default:
       throw new Error('Encoder not found ' + name)
   }

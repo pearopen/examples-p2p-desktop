@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import Runtime from 'pear-electron'
 
-import useWorker from './use-worker'
+import useWorker from '../lib/use-worker'
 
 function App () {
-  const { invite, messages, videos, error, addMessage, addVideo, clearError } = useWorker()
+  const { videos, messages, addVideo, addMessage } = useWorker()
 
   const [input, setInput] = useState('')
   const [playerId, setPlayerId] = useState()
@@ -40,13 +40,6 @@ function App () {
 
   return (
     <div className='bg-blue-500 min-h-screen p-4'>
-      {error && (
-        <div className='bg-red-500 text-white p-2 flex items-center justify-between'>
-          <pre>{error}</pre>
-          <button className='cursor-pointer' onClick={() => clearError()}>X</button>
-        </div>
-      )}
-      <div className='mb-2 wrap-anywhere'>{`Invite: ${invite}`}</div>
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -82,7 +75,7 @@ function App () {
                 </div>
                 {playerId === video.id && (
                   <>
-                    <video className='mb-2 w-full' controls src={video.link} autoPlay />
+                    <video className='mb-2 w-full' controls src={video.info.link} autoPlay />
                     <div className='mb-2 flex'>
                       <input
                         type='text'

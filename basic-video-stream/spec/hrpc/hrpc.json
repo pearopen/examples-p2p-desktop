@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-video-stream/videos",
+      "request": {
+        "name": "@basic-video-stream/videos",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-video-stream/add-video",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-video-stream/messages",
+      "request": {
+        "name": "@basic-video-stream/messages",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-video-stream/add-message",
+      "request": {
+        "name": "@basic-video-stream/add-message",
+        "send": true
+      },
+      "version": 1
+    }
+  ]
+}

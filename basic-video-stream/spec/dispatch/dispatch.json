@@ -5,25 +5,25 @@
     {
       "id": 0,
       "name": "@basic-video-stream/add-writer",
-      "requestType": "@basic-video-stream/writers",
+      "requestType": "@basic-video-stream/writer",
       "version": 1
     },
     {
       "id": 1,
       "name": "@basic-video-stream/add-invite",
-      "requestType": "@basic-video-stream/invites",
+      "requestType": "@basic-video-stream/invite",
       "version": 1
     },
     {
       "id": 2,
-      "name": "@basic-video-stream/add-message",
-      "requestType": "@basic-video-stream/messages",
+      "name": "@basic-video-stream/add-video",
+      "requestType": "@basic-video-stream/video",
       "version": 1
     },
     {
       "id": 3,
-      "name": "@basic-video-stream/add-video",
-      "requestType": "@basic-video-stream/videos",
+      "name": "@basic-video-stream/add-message",
+      "requestType": "@basic-video-stream/message",
       "version": 1
     }
   ]

@@ -8,20 +8,7 @@
       "id": 0,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-video-stream/invites",
-      "derived": false,
-      "key": [
-        "id"
-      ],
-      "trigger": null
-    },
-    {
-      "name": "messages",
-      "namespace": "basic-video-stream",
-      "id": 1,
-      "type": 1,
-      "indexes": [],
-      "schema": "@basic-video-stream/messages",
+      "schema": "@basic-video-stream/invite",
       "derived": false,
       "key": [
         "id"
@@ -31,10 +18,23 @@
     {
       "name": "videos",
       "namespace": "basic-video-stream",
+      "id": 1,
+      "type": 1,
+      "indexes": [],
+      "schema": "@basic-video-stream/video",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    },
+    {
+      "name": "messages",
+      "namespace": "basic-video-stream",
       "id": 2,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-video-stream/videos",
+      "schema": "@basic-video-stream/message",
       "derived": false,
       "key": [
         "id"

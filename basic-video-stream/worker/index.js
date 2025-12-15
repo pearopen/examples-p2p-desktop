@@ -1,10 +1,12 @@
 import Corestore from 'corestore'
+import debounce from 'debounceify'
+import FramedStream from 'framed-stream'
 import Hyperswarm from 'hyperswarm'
-import NewlineDecoder from 'newline-decoder'
 import { command, flag } from 'paparam'
 import ReadyResource from 'ready-resource'
 
 import VideoRoom from './video-room'
+import HRPC from '../spec/hrpc'
 
 const cmd = command('basic-video-stream',
   flag('--invite|-i <invite>', 'Room invite'),
@@ -16,6 +18,10 @@ export default class Worker extends ReadyResource {
     super()
 
     this.pipe = pipe
+    this.stream = new FramedStream(pipe)
+    this.rpc = new HRPC(this.stream)
+    this.stream.pause()
+
     this.storage = storage
 
     cmd.parse(args)
@@ -27,9 +33,12 @@ export default class Worker extends ReadyResource {
     this.swarm.on('connection', (conn) => this.store.replicate(conn))
 
     this.room = new VideoRoom(this.store, this.swarm, this.invite)
+
+    this.debounceVideos = debounce(() => this._videos())
+    this.debounceMessages = debounce(() => this._messages())
     this.room.on('update', async () => {
-      await this._getMessages()
-      await this._getVideos()
+      await this.debounceVideos()
+      await this.debounceMessages()
     })
   }
 
@@ -37,26 +46,17 @@ export default class Worker extends ReadyResource {
     await this.store.ready()
     await this.room.ready()
 
-    const lineDecoder = new NewlineDecoder()
-    this.pipe.on('data', async (data) => {
-      const str = Buffer.from(data).toString()
-      for (const line of lineDecoder.push(str)) {
-        try {
-          const obj = JSON.parse(line)
-          if (obj.tag === 'add-message') {
-            await this.room.addMessage(obj.data.text, { ...obj.data.info, name: this.name, at: Date.now() })
-          } else if (obj.tag === 'add-video') {
-            await this.room.addVideo(obj.data, { name: this.name, at: Date.now() })
-          }
-        } catch (err) {
-          this._write('error', `${line} ~ ${err}`)
-        }
-      }
-    })
+    console.log('Invite:', await this.room.getInvite())
 
-    this._write('invite', await this.room.getInvite())
-    await this._getMessages()
-    await this._getVideos()
+    this.rpc.onAddVideo(async (data) => {
+      await this.room.addVideo(data, { name: this.name, at: Date.now() })
+    })
+    this.rpc.onAddMessage(async (data) => {
+      await this.room.addMessage(data.text, { ...data.info, name: this.name, at: Date.now() })
+    })
+    this.stream.resume()
+    await this.debounceVideos()
+    await this.debounceMessages()
   }
 
   async _close () {
@@ -65,19 +65,15 @@ export default class Worker extends ReadyResource {
     await this.store.close()
   }
 
-  async _getMessages () {
-    const messages = await this.room.getMessages()
-    messages.sort((a, b) => a.info.at - b.info.at)
-    this._write('messages', messages)
-  }
-
-  async _getVideos () {
+  async _videos () {
     const videos = await this.room.getVideos()
     videos.sort((a, b) => a.info.at - b.info.at)
-    this._write('videos', videos)
+    this.rpc.videos(videos)
   }
 
-  _write (tag, data) {
-    this.pipe.write(JSON.stringify({ tag, data }) + '\n')
+  async _messages () {
+    const messages = await this.room.getMessages()
+    messages.sort((a, b) => a.info.at - b.info.at)
+    // this.rpc.messages(messages)
   }
 }

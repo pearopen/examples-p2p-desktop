@@ -15,7 +15,7 @@ function collection0_indexify (record) {
 }
 
 // '@basic-video-stream/invites' value encoding
-const collection0_enc = getEncoding('@basic-video-stream/invites/hyperdb#0')
+const collection0_enc = getEncoding('@basic-video-stream/invite/hyperdb#0')
 
 // '@basic-video-stream/invites' reconstruction function
 function collection0_reconstruct (version, keyBuf, valueBuf) {
@@ -59,7 +59,7 @@ const collection0 = {
   indexes: []
 }
 
-// '@basic-video-stream/messages' collection key
+// '@basic-video-stream/videos' collection key
 const collection1_key = new IndexEncoder([
   IndexEncoder.STRING
 ], { prefix: 1 })
@@ -69,10 +69,10 @@ function collection1_indexify (record) {
   return a === undefined ? [] : [a]
 }
 
-// '@basic-video-stream/messages' value encoding
-const collection1_enc = getEncoding('@basic-video-stream/messages/hyperdb#1')
+// '@basic-video-stream/videos' value encoding
+const collection1_enc = getEncoding('@basic-video-stream/video/hyperdb#1')
 
-// '@basic-video-stream/messages' reconstruction function
+// '@basic-video-stream/videos' reconstruction function
 function collection1_reconstruct (version, keyBuf, valueBuf) {
   const key = collection1_key.decode(keyBuf)
   setVersion(version)
@@ -80,7 +80,7 @@ function collection1_reconstruct (version, keyBuf, valueBuf) {
   record.id = key[0]
   return record
 }
-// '@basic-video-stream/messages' key reconstruction function
+// '@basic-video-stream/videos' key reconstruction function
 function collection1_reconstruct_key (keyBuf) {
   const key = collection1_key.decode(keyBuf)
   return {
@@ -88,9 +88,9 @@ function collection1_reconstruct_key (keyBuf) {
   }
 }
 
-// '@basic-video-stream/messages'
+// '@basic-video-stream/videos'
 const collection1 = {
-  name: '@basic-video-stream/messages',
+  name: '@basic-video-stream/videos',
   id: 1,
   encodeKey (record) {
     const key = [record.id]
@@ -114,7 +114,7 @@ const collection1 = {
   indexes: []
 }
 
-// '@basic-video-stream/videos' collection key
+// '@basic-video-stream/messages' collection key
 const collection2_key = new IndexEncoder([
   IndexEncoder.STRING
 ], { prefix: 2 })
@@ -124,10 +124,10 @@ function collection2_indexify (record) {
   return a === undefined ? [] : [a]
 }
 
-// '@basic-video-stream/videos' value encoding
-const collection2_enc = getEncoding('@basic-video-stream/videos/hyperdb#2')
+// '@basic-video-stream/messages' value encoding
+const collection2_enc = getEncoding('@basic-video-stream/message/hyperdb#2')
 
-// '@basic-video-stream/videos' reconstruction function
+// '@basic-video-stream/messages' reconstruction function
 function collection2_reconstruct (version, keyBuf, valueBuf) {
   const key = collection2_key.decode(keyBuf)
   setVersion(version)
@@ -135,7 +135,7 @@ function collection2_reconstruct (version, keyBuf, valueBuf) {
   record.id = key[0]
   return record
 }
-// '@basic-video-stream/videos' key reconstruction function
+// '@basic-video-stream/messages' key reconstruction function
 function collection2_reconstruct_key (keyBuf) {
   const key = collection2_key.decode(keyBuf)
   return {
@@ -143,9 +143,9 @@ function collection2_reconstruct_key (keyBuf) {
   }
 }
 
-// '@basic-video-stream/videos'
+// '@basic-video-stream/messages'
 const collection2 = {
-  name: '@basic-video-stream/videos',
+  name: '@basic-video-stream/messages',
   id: 2,
   encodeKey (record) {
     const key = [record.id]
@@ -183,8 +183,8 @@ export default { version, collections, indexes, resolveCollection, resolveIndex 
 function resolveCollection (name) {
   switch (name) {
     case '@basic-video-stream/invites': return collection0
-    case '@basic-video-stream/messages': return collection1
-    case '@basic-video-stream/videos': return collection2
+    case '@basic-video-stream/videos': return collection1
+    case '@basic-video-stream/messages': return collection2
     default: return null
   }
 }
