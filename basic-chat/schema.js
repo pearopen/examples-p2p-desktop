@@ -1,23 +1,23 @@
 import Hyperschema from 'hyperschema'
 import HyperdbBuilder from 'hyperdb/builder'
 import Hyperdispatch from 'hyperdispatch'
-
-const NAMESPACE = 'basic-chat'
+import HRPC from 'hrpc'
 
 const SCHEMA_DIR = './spec/schema'
 const DB_DIR = './spec/db'
 const DISPATCH_DIR = './spec/dispatch'
+const HRPC_DIR = './spec/hrpc'
 
 const hyperSchema = Hyperschema.from(SCHEMA_DIR)
-const schema = hyperSchema.namespace(NAMESPACE)
+const schema = hyperSchema.namespace('basic-chat')
 schema.register({
-  name: 'writers',
+  name: 'writer',
   fields: [
     { name: 'key', type: 'buffer', required: true }
   ]
 })
 schema.register({
-  name: 'invites',
+  name: 'invite',
   fields: [
     { name: 'id', type: 'buffer', required: true },
     { name: 'invite', type: 'buffer', required: true },
@@ -26,32 +26,49 @@ schema.register({
   ]
 })
 schema.register({
-  name: 'messages',
+  name: 'message',
   fields: [
     { name: 'id', type: 'string', required: true },
     { name: 'text', type: 'string', required: true },
     { name: 'info', type: 'json' }
   ]
 })
+schema.register({
+  name: 'messages',
+  array: true,
+  type: '@basic-chat/message'
+})
 Hyperschema.toDisk(hyperSchema)
 
 const hyperdb = HyperdbBuilder.from(SCHEMA_DIR, DB_DIR)
-const db = hyperdb.namespace(NAMESPACE)
+const db = hyperdb.namespace('basic-chat')
 db.collections.register({
   name: 'invites',
-  schema: `@${NAMESPACE}/invites`,
+  schema: '@basic-chat/invite',
   key: ['id']
 })
 db.collections.register({
   name: 'messages',
-  schema: `@${NAMESPACE}/messages`,
+  schema: '@basic-chat/message',
   key: ['id']
 })
 HyperdbBuilder.toDisk(hyperdb)
 
 const hyperdispatch = Hyperdispatch.from(SCHEMA_DIR, DISPATCH_DIR, { offset: 0 })
-const dispatch = hyperdispatch.namespace(NAMESPACE)
-dispatch.register({ name: 'add-writer', requestType: `@${NAMESPACE}/writers` })
-dispatch.register({ name: 'add-invite', requestType: `@${NAMESPACE}/invites` })
-dispatch.register({ name: 'add-message', requestType: `@${NAMESPACE}/messages` })
+const dispatch = hyperdispatch.namespace('basic-chat')
+dispatch.register({ name: 'add-writer', requestType: '@basic-chat/writer' })
+dispatch.register({ name: 'add-invite', requestType: '@basic-chat/invite' })
+dispatch.register({ name: 'add-message', requestType: '@basic-chat/message' })
 Hyperdispatch.toDisk(hyperdispatch)
+
+const hrpc = HRPC.from(SCHEMA_DIR, HRPC_DIR)
+const rpc = hrpc.namespace('basic-chat')
+rpc.register({
+  name: 'messages',
+  request: { name: '@basic-chat/messages', send: true }
+})
+rpc.register({
+  name: 'add-message',
+  request: { name: 'string', send: true }
+})
+HRPC.toDisk(hrpc)

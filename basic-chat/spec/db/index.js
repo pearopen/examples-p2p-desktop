@@ -15,7 +15,7 @@ function collection0_indexify (record) {
 }
 
 // '@basic-chat/invites' value encoding
-const collection0_enc = getEncoding('@basic-chat/invites/hyperdb#0')
+const collection0_enc = getEncoding('@basic-chat/invite/hyperdb#0')
 
 // '@basic-chat/invites' reconstruction function
 function collection0_reconstruct (version, keyBuf, valueBuf) {
@@ -70,7 +70,7 @@ function collection1_indexify (record) {
 }
 
 // '@basic-chat/messages' value encoding
-const collection1_enc = getEncoding('@basic-chat/messages/hyperdb#1')
+const collection1_enc = getEncoding('@basic-chat/message/hyperdb#1')
 
 // '@basic-chat/messages' reconstruction function
 function collection1_reconstruct (version, keyBuf, valueBuf) {

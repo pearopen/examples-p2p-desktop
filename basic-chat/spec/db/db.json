@@ -8,7 +8,7 @@
       "id": 0,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-chat/invites",
+      "schema": "@basic-chat/invite",
       "derived": false,
       "key": [
         "id"
@@ -21,7 +21,7 @@
       "id": 1,
       "type": 1,
       "indexes": [],
-      "schema": "@basic-chat/messages",
+      "schema": "@basic-chat/message",
       "derived": false,
       "key": [
         "id"

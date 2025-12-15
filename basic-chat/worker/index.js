@@ -1,10 +1,12 @@
 import Corestore from 'corestore'
+import debounce from 'debounceify'
+import FramedStream from 'framed-stream'
 import Hyperswarm from 'hyperswarm'
-import NewlineDecoder from 'newline-decoder'
 import { command, flag } from 'paparam'
 import ReadyResource from 'ready-resource'
 
 import ChatRoom from './chat-room'
+import HRPC from '../spec/hrpc'
 
 const cmd = command('basic-chat',
   flag('--invite|-i <invite>', 'Room invite'),
@@ -16,6 +18,10 @@ export default class Worker extends ReadyResource {
     super()
 
     this.pipe = pipe
+    this.stream = new FramedStream(pipe)
+    this.rpc = new HRPC(this.stream)
+    this.stream.pause()
+
     this.storage = storage
 
     cmd.parse(args)
@@ -27,30 +33,19 @@ export default class Worker extends ReadyResource {
     this.swarm.on('connection', (conn) => this.store.replicate(conn))
 
     this.room = new ChatRoom(this.store, this.swarm, this.invite)
-    this.room.on('update', () => this._getMessages())
+    this.debounceMessages = debounce(() => this._messages())
+    this.room.on('update', () => this.debounceMessages())
   }
 
   async _open () {
     await this.store.ready()
     await this.room.ready()
 
-    const lineDecoder = new NewlineDecoder()
-    this.pipe.on('data', async (data) => {
-      const str = Buffer.from(data).toString()
-      for (const line of lineDecoder.push(str)) {
-        try {
-          const obj = JSON.parse(line)
-          if (obj.tag === 'add-message') {
-            await this.room.addMessage(obj.data, { name: this.name, at: Date.now() })
-          }
-        } catch (err) {
-          this._write('error', `${line} ~ ${err}`)
-        }
-      }
+    this.rpc.onAddMessage(async (data) => {
+      await this.room.addMessage(data, { name: this.name, at: Date.now() })
     })
-
-    this._write('invite', await this.room.getInvite())
-    await this._getMessages()
+    this.stream.resume()
+    await this.debounceMessages()
   }
 
   async _close () {
@@ -59,13 +54,9 @@ export default class Worker extends ReadyResource {
     await this.store.close()
   }
 
-  async _getMessages () {
+  async _messages () {
     const messages = await this.room.getMessages()
     messages.sort((a, b) => a.info.at - b.info.at)
-    this._write('messages', messages)
-  }
-
-  _write (tag, data) {
-    this.pipe.write(JSON.stringify({ tag, data }) + '\n')
+    await this.rpc.messages(messages)
   }
 }

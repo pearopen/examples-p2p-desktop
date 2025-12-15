@@ -29,7 +29,7 @@
   "scripts": {
     "clean": "rm -rf build",
     "build:db": "node schema.js",
-    "build:swc": "swc ui -d build --copy-files",
+    "build:swc": "swc ui -d build --copy-files --strip-leading-paths",
     "build:tailwind": "npx @tailwindcss/cli -i input.css -o output.css",
     "build": "npm run build:tailwind && npm run build:swc",
     "start": "pear run ."
@@ -39,11 +39,13 @@
     "b4a": "^1.7.3",
     "blind-pairing": "^2.3.1",
     "corestore": "^7.7.0",
+    "debounceify": "^1.1.0",
+    "framed-stream": "^1.0.1",
+    "hrpc": "^4.2.1",
     "hyperdb": "^4.19.1",
     "hyperdispatch": "^1.4.4",
     "hyperschema": "^1.17.1",
     "hyperswarm": "^4.16.0",
-    "newline-decoder": "^1.0.2",
     "paparam": "^1.9.1",
     "pear-bridge": "^1.2.4",
     "pear-electron": "^1.7.25",

@@ -2,7 +2,7 @@
   "version": 1,
   "schema": [
     {
-      "name": "writers",
+      "name": "writer",
       "namespace": "basic-chat",
       "compact": false,
       "flagsPosition": -1,
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "name": "invites",
+      "name": "invite",
       "namespace": "basic-chat",
       "compact": false,
       "flagsPosition": -1,
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "name": "messages",
+      "name": "message",
       "namespace": "basic-chat",
       "compact": false,
       "flagsPosition": 2,
@@ -71,6 +71,12 @@
           "version": 1
         }
       ]
+    },
+    {
+      "name": "messages",
+      "namespace": "basic-chat",
+      "array": true,
+      "type": "@basic-chat/message"
     }
   ]
 }

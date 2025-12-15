@@ -11,7 +11,7 @@ const VERSION = 1
 // eslint-disable-next-line no-unused-vars
 let version = VERSION
 
-// @basic-chat/writers
+// @basic-chat/writer
 const encoding0 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.key)
@@ -28,7 +28,7 @@ const encoding0 = {
   }
 }
 
-// @basic-chat/invites
+// @basic-chat/invite
 const encoding1 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.id)
@@ -57,7 +57,7 @@ const encoding1 = {
   }
 }
 
-// @basic-chat/messages
+// @basic-chat/message
 const encoding2 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
@@ -88,8 +88,11 @@ const encoding2 = {
   }
 }
 
-// @basic-chat/invites/hyperdb#0
-const encoding3 = {
+// @basic-chat/messages
+const encoding3 = c.array(c.frame(encoding2))
+
+// @basic-chat/invite/hyperdb#0
+const encoding4 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.invite)
     c.buffer.preencode(state, m.publicKey)
@@ -114,8 +117,8 @@ const encoding3 = {
   }
 }
 
-// @basic-chat/messages/hyperdb#1
-const encoding4 = {
+// @basic-chat/message/hyperdb#1
+const encoding5 = {
   preencode(state, m) {
     c.string.preencode(state, m.text)
     state.end++ // max flag is 1 so always one byte
@@ -165,16 +168,18 @@ function getEnum(name) {
 
 function getEncoding(name) {
   switch (name) {
-    case '@basic-chat/writers':
+    case '@basic-chat/writer':
       return encoding0
-    case '@basic-chat/invites':
+    case '@basic-chat/invite':
       return encoding1
-    case '@basic-chat/messages':
+    case '@basic-chat/message':
       return encoding2
-    case '@basic-chat/invites/hyperdb#0':
+    case '@basic-chat/messages':
       return encoding3
-    case '@basic-chat/messages/hyperdb#1':
+    case '@basic-chat/invite/hyperdb#0':
       return encoding4
+    case '@basic-chat/message/hyperdb#1':
+      return encoding5
     default:
       throw new Error('Encoder not found ' + name)
   }

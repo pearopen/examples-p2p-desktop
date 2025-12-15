@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import useWorker from './use-worker'
+import useWorker from '../lib/use-worker'
 
 function App () {
-  const { invite, messages, error, addMessage, clearError } = useWorker()
+  const { messages, addMessage } = useWorker()
 
   const [input, setInput] = useState('')
 
@@ -15,7 +15,6 @@ function App () {
 
   return (
     <div className='bg-blue-500 min-h-screen p-4'>
-      <div className='mb-2'>{`Invite: ${invite}`}</div>
       <div className='mb-4 flex'>
         <input
           type='text'
@@ -34,12 +33,6 @@ function App () {
           ))}
         </ul>
       </div>
-      {error && (
-        <div className='bg-red-500 text-white p-2 flex items-center justify-between'>
-          <pre>{error}</pre>
-          <button className='cursor-pointer' onClick={() => clearError()}>X</button>
-        </div>
-      )}
     </div>
   )
 }

@@ -90,19 +90,19 @@ function decode (buffer, { version = defaultVersion } = {}) {
 const route0 = {
   name: '@basic-chat/add-writer',
   id: 0,
-  enc: getEncoding('@basic-chat/writers')
+  enc: getEncoding('@basic-chat/writer')
 }
 
 const route1 = {
   name: '@basic-chat/add-invite',
   id: 1,
-  enc: getEncoding('@basic-chat/invites')
+  enc: getEncoding('@basic-chat/invite')
 }
 
 const route2 = {
   name: '@basic-chat/add-message',
   id: 2,
-  enc: getEncoding('@basic-chat/messages')
+  enc: getEncoding('@basic-chat/message')
 }
 
 function getRouteByName (name) {
