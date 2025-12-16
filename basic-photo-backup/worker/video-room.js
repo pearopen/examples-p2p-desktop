@@ -198,7 +198,7 @@ export default class VideoRoom extends ReadyResource {
 
     let preview
     if (type.startsWith('image/')) {
-      const result = await createPreview({ path: filePath, maxHeight: 128, maxWidth: 128 })
+      const result = await createPreview({ path: filePath, maxHeight: 256, maxWidth: 256 })
       const base64 = result.preview.buffer.toString('base64')
       const mimeType = result.preview.metadata.mimetype
       preview = `data:${mimeType};base64,${base64}`
