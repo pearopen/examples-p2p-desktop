@@ -74,6 +74,6 @@ export default class Worker extends ReadyResource {
   async _messages () {
     const messages = await this.room.getMessages()
     messages.sort((a, b) => a.info.at - b.info.at)
-    // this.rpc.messages(messages)
+    this.rpc.messages(messages)
   }
 }
