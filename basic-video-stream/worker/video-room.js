@@ -131,11 +131,11 @@ export default class VideoRoom extends ReadyResource {
     this.router.add('@basic-video-stream/add-invite', async (data, context) => {
       await context.view.insert('@basic-video-stream/invites', data)
     })
-    this.router.add('@basic-video-stream/add-message', async (data, context) => {
-      await context.view.insert('@basic-video-stream/messages', data)
-    })
     this.router.add('@basic-video-stream/add-video', async (data, context) => {
       await context.view.insert('@basic-video-stream/videos', data)
+    })
+    this.router.add('@basic-video-stream/add-message', async (data, context) => {
+      await context.view.insert('@basic-video-stream/messages', data)
     })
   }
 
