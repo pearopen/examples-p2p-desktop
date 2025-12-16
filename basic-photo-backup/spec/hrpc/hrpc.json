@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-photo-backup/videos",
+      "request": {
+        "name": "@basic-photo-backup/videos",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-photo-backup/add-video",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-photo-backup/messages",
+      "request": {
+        "name": "@basic-photo-backup/messages",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-photo-backup/add-message",
+      "request": {
+        "name": "@basic-photo-backup/add-message",
+        "send": true
+      },
+      "version": 1
+    }
+  ]
+}

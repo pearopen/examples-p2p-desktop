@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-photo-backup/add-writer",
+      "requestType": "@basic-photo-backup/writer",
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-photo-backup/add-invite",
+      "requestType": "@basic-photo-backup/invite",
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-photo-backup/add-video",
+      "requestType": "@basic-photo-backup/video",
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-photo-backup/add-message",
+      "requestType": "@basic-photo-backup/message",
+      "version": 1
+    }
+  ]
+}

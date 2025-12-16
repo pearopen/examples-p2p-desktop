@@ -1,0 +1,45 @@
+{
+  "version": 0,
+  "offset": 0,
+  "schema": [
+    {
+      "name": "invites",
+      "namespace": "basic-photo-backup",
+      "id": 0,
+      "type": 1,
+      "indexes": [],
+      "schema": "@basic-photo-backup/invite",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    },
+    {
+      "name": "videos",
+      "namespace": "basic-photo-backup",
+      "id": 1,
+      "type": 1,
+      "indexes": [],
+      "schema": "@basic-photo-backup/video",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    },
+    {
+      "name": "messages",
+      "namespace": "basic-photo-backup",
+      "id": 2,
+      "type": 1,
+      "indexes": [],
+      "schema": "@basic-photo-backup/message",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    }
+  ]
+}
