@@ -1,6 +1,5 @@
 import Autobase from 'autobase'
 import b4a from 'b4a'
-import { createPreview } from 'bare-media/worker/media'
 import BlindPairing from 'blind-pairing'
 import fs from 'fs'
 import getMimeType from 'get-mime-type'
@@ -12,6 +11,8 @@ import path from 'path'
 import ReadyResource from 'ready-resource'
 import z32 from 'z32'
 
+import createPreviewImage from '../lib/create-preview-image'
+import createPreviewVideo from '../lib/create-preview-video'
 import * as VideoDispatch from '../spec/dispatch'
 import VideoDb from '../spec/db'
 
@@ -196,13 +197,7 @@ export default class VideoRoom extends ReadyResource {
     })
     const blob = { key: idEnc.normalize(this.blobs.core.key), ...ws.id }
 
-    let preview
-    if (type.startsWith('image/')) {
-      const result = await createPreview({ path: filePath, maxHeight: 256, maxWidth: 256 })
-      const base64 = result.preview.buffer.toString('base64')
-      const mimeType = result.preview.metadata.mimetype
-      preview = `data:${mimeType};base64,${base64}`
-    }
+    const preview = type.startsWith('image/') ? await createPreviewImage(filePath) : await createPreviewVideo(filePath)
 
     const id = Math.random().toString(16).slice(2)
     await this.base.append(

@@ -40,6 +40,7 @@
   "dependencies": {
     "autobase": "^7.24.0",
     "b4a": "^1.7.3",
+    "bare-ffmpeg": "^1.0.0",
     "bare-fs": "^4.5.2",
     "bare-media": "^1.8.0",
     "bare-path": "^3.0.0",
