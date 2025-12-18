@@ -1,5 +1,6 @@
 /* global Pear */
 import FramedStream from 'framed-stream'
+import fs from 'fs'
 import { command, flag } from 'paparam'
 import path from 'path'
 
@@ -8,7 +9,8 @@ import WorkerTask from './worker-task'
 
 const cmd = command('basic-video-stream',
   flag('--invite|-i <invite>', 'Room invite'),
-  flag('--name|-n <name>', 'Your name')
+  flag('--name|-n <name>', 'Your name'),
+  flag('--reset', 'Reset')
 )
 
 export default async function runWorker (pipe) {
@@ -18,6 +20,9 @@ export default async function runWorker (pipe) {
 
   const storage = path.join(Pear.app.storage, 'basic-video-stream')
   cmd.parse(Pear.app.args)
+  if (cmd.flags.reset) {
+    await fs.promises.rm(storage, { recursive: true, force: true })
+  }
 
   const workerTask = new WorkerTask(rpc, storage, cmd.flags)
   Pear.teardown(() => workerTask.close())
