@@ -3,19 +3,15 @@
 import Bridge from 'pear-bridge'
 import Runtime from 'pear-electron'
 
-import Worker from './worker'
+import runWorker from './worker'
 
 const bridge = new Bridge()
 await bridge.ready()
 
 const runtime = new Runtime()
 const pipe = await runtime.start({ bridge })
-const worker = new Worker(pipe, Pear.app.storage, Pear.app.args)
-
+const workerTask = await runWorker(pipe)
 pipe.on('close', async () => {
-  await worker.close()
+  await workerTask.close()
   Pear.exit()
 })
-Pear.teardown(() => worker.close())
-
-await worker.ready()
