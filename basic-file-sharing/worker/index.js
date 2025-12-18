@@ -18,7 +18,7 @@ export default async function runWorker (pipe) {
   const rpc = new HRPC(stream)
   stream.pause()
 
-  const storage = path.join(Pear.app.storage, 'basic-file-sharing')
+  const storage = path.join(Pear.app.storage, 'corestore')
   cmd.parse(Pear.app.args)
   if (cmd.flags.reset) {
     await fs.promises.rm(storage, { recursive: true, force: true })
