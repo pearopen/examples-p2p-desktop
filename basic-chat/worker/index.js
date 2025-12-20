@@ -29,9 +29,9 @@ export default async function runWorker (pipe) {
   await workerTask.ready()
   stream.resume()
 
-  console.log('Storage', storage)
-  console.log('Name', workerTask.name)
-  console.log('Invite', await workerTask.room.getInvite())
+  console.log(`Storage: ${storage}`)
+  console.log(`Name: ${workerTask.name}`)
+  console.log(`Invite: ${await workerTask.room.getInvite()}`)
 
   return workerTask
 }

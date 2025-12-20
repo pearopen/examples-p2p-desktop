@@ -73,10 +73,8 @@ export default class ChatRoom extends ReadyResource {
       discoveryKey: this.base.discoveryKey,
       /** @type {function(import('blind-pairing-core').MemberRequest)} */
       onadd: async (request) => {
-        const inv = await this.view.findOne('@basic-chat/invites', {})
-        if (inv === null || !b4a.equals(inv.id, request.inviteId)) {
-          return
-        }
+        const inv = await this.view.findOne('@basic-chat/invites', { id: request.inviteId })
+        if (!inv) return
         request.open(inv.publicKey)
         await this.addWriter(request.userData)
         request.confirm({
