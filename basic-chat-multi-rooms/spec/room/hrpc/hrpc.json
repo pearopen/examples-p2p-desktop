@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-chat-multi-rooms/messages",
+      "request": {
+        "name": "@basic-chat-multi-rooms/messages",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-chat-multi-rooms/add-message",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    }
+  ]
+}
