@@ -179,11 +179,10 @@ export default class DriveRoom extends ReadyResource {
       return z32.encode(existing.invite)
     }
     const { id, invite, publicKey, expires } = BlindPairing.createInvite(this.base.key)
-    const record = { id, invite, publicKey, expires }
     await this.base.append(
-      DriveDispatch.encode('@basic-file-sharing/add-invite', record)
+      DriveDispatch.encode('@basic-file-sharing/add-invite', { id, invite, publicKey, expires })
     )
-    return z32.encode(record.invite)
+    return z32.encode(invite)
   }
 
   async addWriter (key) {

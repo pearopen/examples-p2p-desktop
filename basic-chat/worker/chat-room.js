@@ -130,11 +130,10 @@ export default class ChatRoom extends ReadyResource {
       return z32.encode(existing.invite)
     }
     const { id, invite, publicKey, expires } = BlindPairing.createInvite(this.base.key)
-    const record = { id, invite, publicKey, expires }
     await this.base.append(
-      ChatDispatch.encode('@basic-chat/add-invite', record)
+      ChatDispatch.encode('@basic-chat/add-invite', { id, invite, publicKey, expires })
     )
-    return z32.encode(record.invite)
+    return z32.encode(invite)
   }
 
   async addWriter (key) {
