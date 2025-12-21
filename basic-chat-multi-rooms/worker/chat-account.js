@@ -7,15 +7,14 @@ import z32 from 'z32'
 
 import * as ChatDispatch from '../spec/dispatch'
 import ChatDb from '../spec/db'
+import ChatRoom from './chat-room'
 
-export default class ChatRoom extends ReadyResource {
-  constructor (store, swarm, { name, info, invite } = {}) {
+export default class ChatAccount extends ReadyResource {
+  constructor (store, swarm, invite) {
     super()
 
     this.store = store
     this.swarm = swarm
-    this.name = name
-    this.info = info
     this.invite = invite
 
     this.pairing = new BlindPairing(swarm)
@@ -27,6 +26,9 @@ export default class ChatRoom extends ReadyResource {
     this.localBase = Autobase.getLocalCore(this.store)
     this.base = null
     this.pairMember = null
+
+    /** @type {Record<string, ChatRoom>} */
+    this.rooms = {}
   }
 
   async _open () {
@@ -85,9 +87,19 @@ export default class ChatRoom extends ReadyResource {
         })
       }
     })
+
+    const rooms = await this.view.find('@basic-chat-multi-rooms/rooms', { reverse: true, limit: 100 }).toArray()
+    await Promise.all(rooms.map(async (item) => {
+      const roomStore = this.store.namespace(item.id)
+      const room = new ChatRoom(roomStore, this.swarm, { name: item.name, info: item.info })
+      this.rooms[item.id] = room
+      await room.ready()
+      room.info.invite = await room.getInvite()
+    }))
   }
 
   async _close () {
+    await Promise.all(Object.values(this.rooms).map(room => room.close()))
     await this.pairMember?.close()
     await this.base?.close()
     await this.localBase.close()
@@ -119,8 +131,8 @@ export default class ChatRoom extends ReadyResource {
     this.router.add('@basic-chat-multi-rooms/add-room', async (data, context) => {
       await context.view.insert('@basic-chat-multi-rooms/rooms', data)
     })
-    this.router.add('@basic-chat-multi-rooms/add-message', async (data, context) => {
-      await context.view.insert('@basic-chat-multi-rooms/messages', data)
+    this.router.add('@basic-chat-multi-rooms/add-message', async () => {
+      throw new Error('Invalid op')
     })
   }
 
@@ -147,25 +159,47 @@ export default class ChatRoom extends ReadyResource {
     )
   }
 
-  async getRoomInfo () {
-    return (await this.view.find('@basic-chat-multi-rooms/rooms', {}).toArray())[0]
-  }
-
-  async addRoomInfo () {
+  async addRoom (name, info) {
     const id = Math.random().toString(16).slice(2)
+
+    const roomStore = this.store.namespace(id)
+    const room = new ChatRoom(roomStore, this.swarm, { name, info })
+    this.rooms[id] = room
+
+    await room.ready()
+    await room.addRoomInfo()
+    room.info.invite = await room.getInvite()
+
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: this.name, info: this.info })
+      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name, info })
     )
   }
 
-  async getMessages ({ reverse = true, limit = 100 } = {}) {
-    return await this.view.find('@basic-chat-multi-rooms/messages', { reverse, limit }).toArray()
+  async joinRoom (invite) {
+    const id = Math.random().toString(16).slice(2)
+
+    const roomStore = this.store.namespace(id)
+    const room = new ChatRoom(roomStore, this.swarm, { invite })
+    this.rooms[id] = room
+
+    room.on('update', async () => {
+      const remoteRoom = await room.getRoomInfo()
+
+      if (remoteRoom && remoteRoom.name !== room.name) {
+        room.name = remoteRoom.name
+        room.info = remoteRoom.info
+
+        await this.base.append(
+          ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: remoteRoom.name, info: remoteRoom.info })
+        )
+      }
+    })
+    await room.ready()
   }
 
   async addMessage (roomId, text, info) {
-    const id = Math.random().toString(16).slice(2)
-    await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-message', { id, text, roomId, info })
-    )
+    const room = this.rooms[roomId]
+    if (!room) throw new Error('Room not found')
+    await room.addMessage(roomId, text, info)
   }
 }

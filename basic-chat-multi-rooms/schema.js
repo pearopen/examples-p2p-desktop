@@ -52,6 +52,13 @@ schema.register({
   array: true,
   type: '@basic-chat-multi-rooms/message'
 })
+schema.register({
+  name: 'add-message',
+  fields: [
+    { name: 'text', type: 'string', required: true },
+    { name: 'roomId', type: 'string', required: true }
+  ]
+})
 Hyperschema.toDisk(hyperSchema)
 
 const hyperdb = HyperdbBuilder.from(SCHEMA_DIR, DB_DIR)
@@ -92,11 +99,15 @@ rpc.register({
   request: { name: 'string', send: true }
 })
 rpc.register({
+  name: 'join-room',
+  request: { name: 'string', send: true }
+})
+rpc.register({
   name: 'messages',
   request: { name: '@basic-chat-multi-rooms/messages', send: true }
 })
 rpc.register({
   name: 'add-message',
-  request: { name: 'string', send: true }
+  request: { name: '@basic-chat-multi-rooms/add-message', send: true }
 })
 HRPC.toDisk(hrpc)

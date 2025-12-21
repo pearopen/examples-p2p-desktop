@@ -10,10 +10,12 @@ const methods = new Map([
   [0, '@basic-chat-multi-rooms/rooms'],
   ['@basic-chat-multi-rooms/add-room', 1],
   [1, '@basic-chat-multi-rooms/add-room'],
-  ['@basic-chat-multi-rooms/messages', 2],
-  [2, '@basic-chat-multi-rooms/messages'],
-  ['@basic-chat-multi-rooms/add-message', 3],
-  [3, '@basic-chat-multi-rooms/add-message']
+  ['@basic-chat-multi-rooms/join-room', 2],
+  [2, '@basic-chat-multi-rooms/join-room'],
+  ['@basic-chat-multi-rooms/messages', 3],
+  [3, '@basic-chat-multi-rooms/messages'],
+  ['@basic-chat-multi-rooms/add-message', 4],
+  [4, '@basic-chat-multi-rooms/add-message']
 ])
 
 class HRPC {
@@ -23,6 +25,7 @@ class HRPC {
     this._requestEncodings = new Map([
       ['@basic-chat-multi-rooms/rooms', getEncoding('@basic-chat-multi-rooms/rooms')],
       ['@basic-chat-multi-rooms/add-room', c.string],
+      ['@basic-chat-multi-rooms/join-room', c.string],
       ['@basic-chat-multi-rooms/messages', getEncoding('@basic-chat-multi-rooms/messages')],
       ['@basic-chat-multi-rooms/add-message', getEncoding('@basic-chat-multi-rooms/add-message')]
     ])
@@ -132,6 +135,10 @@ class HRPC {
     return this._callSync('@basic-chat-multi-rooms/add-room', args)
   }
 
+  joinRoom(args) {
+    return this._callSync('@basic-chat-multi-rooms/join-room', args)
+  }
+
   messages(args) {
     return this._callSync('@basic-chat-multi-rooms/messages', args)
   }
@@ -146,6 +153,10 @@ class HRPC {
 
   onAddRoom(responseFn) {
     this._handlers['@basic-chat-multi-rooms/add-room'] = responseFn
+  }
+
+  onJoinRoom(responseFn) {
+    this._handlers['@basic-chat-multi-rooms/join-room'] = responseFn
   }
 
   onMessages(responseFn) {
@@ -172,6 +183,7 @@ class HRPC {
       // prettier-ignore
       '@basic-chat-multi-rooms/rooms',
       '@basic-chat-multi-rooms/add-room',
+      '@basic-chat-multi-rooms/join-room',
       '@basic-chat-multi-rooms/messages',
       '@basic-chat-multi-rooms/add-message'
     ].includes(command)

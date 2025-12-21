@@ -21,6 +21,15 @@
     },
     {
       "id": 2,
+      "name": "@basic-chat-multi-rooms/join-room",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 3,
       "name": "@basic-chat-multi-rooms/messages",
       "request": {
         "name": "@basic-chat-multi-rooms/messages",
@@ -29,7 +38,7 @@
       "version": 1
     },
     {
-      "id": 3,
+      "id": 4,
       "name": "@basic-chat-multi-rooms/add-message",
       "request": {
         "name": "@basic-chat-multi-rooms/add-message",

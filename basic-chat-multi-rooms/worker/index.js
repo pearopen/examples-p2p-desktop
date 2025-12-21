@@ -31,7 +31,7 @@ export default async function runWorker (pipe) {
 
   console.log(`Storage: ${storage}`)
   console.log(`Name: ${workerTask.name}`)
-  console.log(`Invite: ${await workerTask.room.getInvite()}`)
+  console.log(`Account Invite: ${await workerTask.account.getInvite()}`)
 
   return workerTask
 }
