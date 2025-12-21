@@ -129,8 +129,29 @@ const encoding4 = {
 // @basic-chat-multi-rooms/messages
 const encoding5 = c.array(c.frame(encoding4))
 
-// @basic-chat-multi-rooms/invite/hyperdb#0
+// @basic-chat-multi-rooms/add-message
 const encoding6 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    c.string.preencode(state, m.roomId)
+  },
+  encode(state, m) {
+    c.string.encode(state, m.text)
+    c.string.encode(state, m.roomId)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+
+    return {
+      text: r0,
+      roomId: r1
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/invite/hyperdb#0
+const encoding7 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.invite)
     c.buffer.preencode(state, m.publicKey)
@@ -156,7 +177,7 @@ const encoding6 = {
 }
 
 // @basic-chat-multi-rooms/room/hyperdb#1
-const encoding7 = {
+const encoding8 = {
   preencode(state, m) {
     c.string.preencode(state, m.name)
     state.end++ // max flag is 1 so always one byte
@@ -184,7 +205,7 @@ const encoding7 = {
 }
 
 // @basic-chat-multi-rooms/message/hyperdb#2
-const encoding8 = {
+const encoding9 = {
   preencode(state, m) {
     c.string.preencode(state, m.text)
     c.string.preencode(state, m.roomId)
@@ -250,12 +271,14 @@ function getEncoding(name) {
       return encoding4
     case '@basic-chat-multi-rooms/messages':
       return encoding5
-    case '@basic-chat-multi-rooms/invite/hyperdb#0':
+    case '@basic-chat-multi-rooms/add-message':
       return encoding6
-    case '@basic-chat-multi-rooms/room/hyperdb#1':
+    case '@basic-chat-multi-rooms/invite/hyperdb#0':
       return encoding7
-    case '@basic-chat-multi-rooms/message/hyperdb#2':
+    case '@basic-chat-multi-rooms/room/hyperdb#1':
       return encoding8
+    case '@basic-chat-multi-rooms/message/hyperdb#2':
+      return encoding9
     default:
       throw new Error('Encoder not found ' + name)
   }

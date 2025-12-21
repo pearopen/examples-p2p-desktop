@@ -114,6 +114,26 @@
       "namespace": "basic-chat-multi-rooms",
       "array": true,
       "type": "@basic-chat-multi-rooms/message"
+    },
+    {
+      "name": "add-message",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "text",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "roomId",
+          "required": true,
+          "type": "string",
+          "version": 1
+        }
+      ]
     }
   ]
 }

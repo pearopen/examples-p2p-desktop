@@ -129,6 +129,27 @@ const encoding4 = {
 // @basic-chat-multi-rooms/messages
 const encoding5 = c.array(c.frame(encoding4))
 
+// @basic-chat-multi-rooms/add-message
+const encoding6 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    c.string.preencode(state, m.roomId)
+  },
+  encode(state, m) {
+    c.string.encode(state, m.text)
+    c.string.encode(state, m.roomId)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+
+    return {
+      text: r0,
+      roomId: r1
+    }
+  }
+}
+
 function setVersion(v) {
   version = v
 }
@@ -164,6 +185,8 @@ function getEncoding(name) {
       return encoding4
     case '@basic-chat-multi-rooms/messages':
       return encoding5
+    case '@basic-chat-multi-rooms/add-message':
+      return encoding6
     default:
       throw new Error('Encoder not found ' + name)
   }

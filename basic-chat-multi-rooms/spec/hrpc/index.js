@@ -24,7 +24,7 @@ class HRPC {
       ['@basic-chat-multi-rooms/rooms', getEncoding('@basic-chat-multi-rooms/rooms')],
       ['@basic-chat-multi-rooms/add-room', c.string],
       ['@basic-chat-multi-rooms/messages', getEncoding('@basic-chat-multi-rooms/messages')],
-      ['@basic-chat-multi-rooms/add-message', c.string]
+      ['@basic-chat-multi-rooms/add-message', getEncoding('@basic-chat-multi-rooms/add-message')]
     ])
     this._responseEncodings = new Map([
     ])
