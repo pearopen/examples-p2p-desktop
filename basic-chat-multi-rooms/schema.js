@@ -29,7 +29,8 @@ schema.register({
   name: 'room',
   fields: [
     { name: 'id', type: 'string', required: true },
-    { name: 'name', type: 'string', required: true }
+    { name: 'name', type: 'string', required: true },
+    { name: 'info', type: 'json' }
   ]
 })
 schema.register({
@@ -42,6 +43,7 @@ schema.register({
   fields: [
     { name: 'id', type: 'string', required: true },
     { name: 'text', type: 'string', required: true },
+    { name: 'roomId', type: 'string', required: true },
     { name: 'info', type: 'json' }
   ]
 })

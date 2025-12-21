@@ -62,18 +62,28 @@ const encoding2 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.name)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
   },
   encode(state, m) {
+    const flags = m.info ? 1 : 0
+
     c.string.encode(state, m.id)
     c.string.encode(state, m.name)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
   },
   decode(state) {
     const r0 = c.string.decode(state)
     const r1 = c.string.decode(state)
+    const flags = c.uint.decode(state)
 
     return {
       id: r0,
-      name: r1
+      name: r1,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
 }
@@ -86,6 +96,7 @@ const encoding4 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.text)
+    c.string.preencode(state, m.roomId)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -95,6 +106,7 @@ const encoding4 = {
 
     c.string.encode(state, m.id)
     c.string.encode(state, m.text)
+    c.string.encode(state, m.roomId)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
@@ -102,11 +114,13 @@ const encoding4 = {
   decode(state) {
     const r0 = c.string.decode(state)
     const r1 = c.string.decode(state)
+    const r2 = c.string.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: r0,
       text: r1,
+      roomId: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
@@ -145,24 +159,6 @@ const encoding6 = {
 const encoding7 = {
   preencode(state, m) {
     c.string.preencode(state, m.name)
-  },
-  encode(state, m) {
-    c.string.encode(state, m.name)
-  },
-  decode(state) {
-    const r1 = c.string.decode(state)
-
-    return {
-      id: null,
-      name: r1
-    }
-  }
-}
-
-// @basic-chat-multi-rooms/message/hyperdb#2
-const encoding8 = {
-  preencode(state, m) {
-    c.string.preencode(state, m.text)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -170,7 +166,7 @@ const encoding8 = {
   encode(state, m) {
     const flags = m.info ? 1 : 0
 
-    c.string.encode(state, m.text)
+    c.string.encode(state, m.name)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
@@ -181,7 +177,39 @@ const encoding8 = {
 
     return {
       id: null,
+      name: r1,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/message/hyperdb#2
+const encoding8 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    c.string.preencode(state, m.roomId)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.text)
+    c.string.encode(state, m.roomId)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r1 = c.string.decode(state)
+    const r2 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      id: null,
       text: r1,
+      roomId: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
