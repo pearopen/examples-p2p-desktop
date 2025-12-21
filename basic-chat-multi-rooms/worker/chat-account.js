@@ -1,6 +1,7 @@
 import Autobase from 'autobase'
 import b4a from 'b4a'
 import BlindPairing from 'blind-pairing'
+import debounce from 'debounceify'
 import HyperDB from 'hyperdb'
 import ReadyResource from 'ready-resource'
 import z32 from 'z32'
@@ -93,6 +94,9 @@ export default class ChatAccount extends ReadyResource {
       const roomStore = this.store.namespace(item.id)
       const room = new ChatRoom(roomStore, this.swarm, { name: item.name, info: item.info })
       this.rooms[item.id] = room
+
+      this._watchMessages(room)
+
       await room.ready()
       room.info.invite = await room.getInvite()
     }))
@@ -166,6 +170,8 @@ export default class ChatAccount extends ReadyResource {
     const room = new ChatRoom(roomStore, this.swarm, { name, info })
     this.rooms[id] = room
 
+    this._watchMessages(room)
+
     await room.ready()
     await room.addRoomInfo()
     room.info.invite = await room.getInvite()
@@ -194,6 +200,8 @@ export default class ChatAccount extends ReadyResource {
         )
       }
     })
+    this._watchMessages(room)
+
     await room.ready()
   }
 
@@ -201,5 +209,14 @@ export default class ChatAccount extends ReadyResource {
     const room = this.rooms[roomId]
     if (!room) throw new Error('Room not found')
     await room.addMessage(roomId, text, info)
+  }
+
+  async _watchMessages (room) {
+    const debounceMessages = debounce(async () => {
+      const messages = await room.getMessages()
+      messages.sort((a, b) => a.info.at - b.info.at)
+      this.emit('messages', messages)
+    })
+    room.on('update', async () => debounceMessages())
   }
 }
