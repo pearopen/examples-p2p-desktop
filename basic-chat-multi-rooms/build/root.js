@@ -9,7 +9,7 @@ function App() {
     const [roomInviteInput, setRoomInviteInput] = useState('');
     const [messageInput, setMessageInput] = useState('');
     const roomId = selectedRoomId || rooms[0]?.id;
-    const roomMessages = roomId ? messages.filter((msg)=>msg.roomId === roomId) : [];
+    const roomMessages = messages[roomId] || [];
     const onCreateRoom = ()=>{
         if (!roomNameInput) {
             alert('Please enter a room name');
@@ -39,7 +39,7 @@ function App() {
                     className: "mb-4 wrap-anywhere",
                     children: [
                         "Room Invite: ",
-                        rooms.find((item)=>item.id === roomId)?.info?.invite
+                        rooms.find((item)=>item.id === roomId)?.invite
                     ]
                 }),
                 /*#__PURE__*/ _jsxs("div", {

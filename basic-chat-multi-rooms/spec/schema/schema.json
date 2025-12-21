@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "name": "writer",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "key",
+          "required": true,
+          "type": "buffer",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "invite",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "id",
+          "required": true,
+          "type": "buffer",
+          "version": 1
+        },
+        {
+          "name": "invite",
+          "required": true,
+          "type": "buffer",
+          "version": 1
+        },
+        {
+          "name": "publicKey",
+          "required": true,
+          "type": "buffer",
+          "version": 1
+        },
+        {
+          "name": "expires",
+          "required": true,
+          "type": "int",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "room",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": 3,
+      "fields": [
+        {
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "invite",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "info",
+          "type": "json",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "rooms",
+      "namespace": "basic-chat-multi-rooms",
+      "array": true,
+      "type": "@basic-chat-multi-rooms/room"
+    },
+    {
+      "name": "message",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": 2,
+      "fields": [
+        {
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "text",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "info",
+          "type": "json",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "messages",
+      "namespace": "basic-chat-multi-rooms",
+      "array": true,
+      "type": "@basic-chat-multi-rooms/message"
+    },
+    {
+      "name": "get-messages",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "messages",
+          "required": true,
+          "type": "@basic-chat-multi-rooms/messages",
+          "version": 1
+        },
+        {
+          "name": "roomId",
+          "required": true,
+          "type": "string",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "add-message",
+      "namespace": "basic-chat-multi-rooms",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "text",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "roomId",
+          "required": true,
+          "type": "string",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}

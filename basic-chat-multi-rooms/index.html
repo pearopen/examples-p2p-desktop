@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Chat Multi Rooms</title>
+  <link href="./output.css" rel="stylesheet">
+  <style>
+    #bar {
+      -webkit-app-region: drag;
+      height: 30px;
+      width: 100%;
+    }
+    pear-ctrl[data-platform=darwin] {
+      padding: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="bar"><pear-ctrl></pear-ctrl></div>
+  <div id="root"></div>
+  <script src="./build/root.js" type="module" defer></script>
+</body>
+
+</html>
