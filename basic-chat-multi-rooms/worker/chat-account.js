@@ -89,18 +89,7 @@ export default class ChatAccount extends ReadyResource {
       }
     })
 
-    const rooms = await this.view.find('@basic-chat-multi-rooms/rooms', { reverse: true, limit: 100 }).toArray()
-    await Promise.all(rooms.map(async (item) => {
-      const roomStore = this.store.namespace(item.id)
-      const room = new ChatRoom(roomStore, this.swarm, { name: item.name, info: item.info })
-      this.rooms[item.id] = room
-
-      this._watchMessages(item.id)
-
-      await room.ready()
-      room.info.invite = await room.getInvite()
-      await this._messages(item.id)
-    }))
+    await this.openRooms()
   }
 
   async _close () {
@@ -164,6 +153,20 @@ export default class ChatAccount extends ReadyResource {
     )
   }
 
+  async openRooms () {
+    const rooms = await this.view.find('@basic-chat-multi-rooms/rooms', { reverse: true, limit: 100 }).toArray()
+    await Promise.all(rooms.map(async (item) => {
+      const roomStore = this.store.namespace(item.id)
+      const room = new ChatRoom(roomStore, this.swarm, { name: item.name, info: item.info, invite: item.invite })
+      this.rooms[item.id] = room
+
+      this._watchMessages(item.id)
+      await room.ready()
+
+      await this._messages(item.id)
+    }))
+  }
+
   async addRoom (name, info) {
     const id = Math.random().toString(16).slice(2)
 
@@ -172,13 +175,11 @@ export default class ChatAccount extends ReadyResource {
     this.rooms[id] = room
 
     this._watchMessages(id)
-
     await room.ready()
-    await room.addRoomInfo()
-    room.info.invite = await room.getInvite()
 
+    await room.addRoomInfo()
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, info: room.info })
+      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, invite: room.invite, info: room.info })
     )
   }
 
@@ -195,15 +196,12 @@ export default class ChatAccount extends ReadyResource {
       if (remoteRoom && remoteRoom.name !== room.name) {
         room.name = remoteRoom.name
         room.info = remoteRoom.info
-        room.info.invite = invite
-
         await this.base.append(
-          ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, info: room.info })
+          ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, invite, info: room.info })
         )
       }
     })
     this._watchMessages(id)
-
     await room.ready()
   }
 

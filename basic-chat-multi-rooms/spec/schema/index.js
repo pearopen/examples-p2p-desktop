@@ -62,6 +62,7 @@ const encoding2 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.name)
+    c.string.preencode(state, m.invite)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -71,6 +72,7 @@ const encoding2 = {
 
     c.string.encode(state, m.id)
     c.string.encode(state, m.name)
+    c.string.encode(state, m.invite)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
@@ -78,11 +80,13 @@ const encoding2 = {
   decode(state) {
     const r0 = c.string.decode(state)
     const r1 = c.string.decode(state)
+    const r2 = c.string.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: r0,
       name: r1,
+      invite: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }

@@ -51,6 +51,7 @@ export default class WorkerTask extends ReadyResource {
     const rooms = Object.entries(this.account.rooms).map(([id, room]) => ({
       id,
       name: room.name,
+      invite: room.invite,
       info: room.info
     }))
     rooms.sort((a, b) => a.info.at - b.info.at)

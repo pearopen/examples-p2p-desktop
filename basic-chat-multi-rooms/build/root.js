@@ -39,7 +39,7 @@ function App() {
                     className: "mb-4 wrap-anywhere",
                     children: [
                         "Room Invite: ",
-                        rooms.find((item)=>item.id === roomId)?.info?.invite
+                        rooms.find((item)=>item.id === roomId)?.invite
                     ]
                 }),
                 /*#__PURE__*/ _jsxs("div", {

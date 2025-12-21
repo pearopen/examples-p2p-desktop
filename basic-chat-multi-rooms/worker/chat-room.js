@@ -153,8 +153,9 @@ export default class ChatRoom extends ReadyResource {
 
   async addRoomInfo () {
     const id = Math.random().toString(16).slice(2)
+    this.invite = await this.getInvite()
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: this.name, info: this.info })
+      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: this.name, invite: this.invite, info: this.info })
     )
   }
 

@@ -51,7 +51,7 @@
       "name": "room",
       "namespace": "basic-chat-multi-rooms",
       "compact": false,
-      "flagsPosition": 2,
+      "flagsPosition": 3,
       "fields": [
         {
           "name": "id",
@@ -61,6 +61,12 @@
         },
         {
           "name": "name",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "invite",
           "required": true,
           "type": "string",
           "version": 1

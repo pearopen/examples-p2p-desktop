@@ -30,6 +30,7 @@ schema.register({
   fields: [
     { name: 'id', type: 'string', required: true },
     { name: 'name', type: 'string', required: true },
+    { name: 'invite', type: 'string', required: true },
     { name: 'info', type: 'json' }
   ]
 })

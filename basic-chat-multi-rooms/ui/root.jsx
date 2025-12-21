@@ -42,7 +42,7 @@ function App () {
     return (
       <div className='bg-blue-500 min-h-screen p-4'>
         <div className='mb-4 wrap-anywhere'>
-          Room Invite: {rooms.find(item => item.id === roomId)?.info?.invite}
+          Room Invite: {rooms.find(item => item.id === roomId)?.invite}
         </div>
         <div className='mb-4 flex'>
           <input
