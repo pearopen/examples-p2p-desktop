@@ -11,8 +11,9 @@ class Router {
     this._handler0 = null
     this._handler1 = null
     this._handler2 = null
+    this._handler3 = null
 
-    this._missing = 3
+    this._missing = 4
   }
 
   add (name, handler) {
@@ -23,8 +24,11 @@ class Router {
       case '@basic-chat-multi-rooms/add-invite':
         this._handler1 = handler
         break
-      case '@basic-chat-multi-rooms/add-message':
+      case '@basic-chat-multi-rooms/add-room':
         this._handler2 = handler
+        break
+      case '@basic-chat-multi-rooms/add-message':
+        this._handler3 = handler
         break
       default:
         throw new Error('Cannot register a handler for a nonexistent route: ' + name)
@@ -35,7 +39,8 @@ class Router {
   _checkAll () {
     assert(this._handler0 !== null, 'Missing handler for "@basic-chat-multi-rooms/add-writer"')
     assert(this._handler1 !== null, 'Missing handler for "@basic-chat-multi-rooms/add-invite"')
-    assert(this._handler2 !== null, 'Missing handler for "@basic-chat-multi-rooms/add-message"')
+    assert(this._handler2 !== null, 'Missing handler for "@basic-chat-multi-rooms/add-room"')
+    assert(this._handler3 !== null, 'Missing handler for "@basic-chat-multi-rooms/add-message"')
   }
 
   async dispatch (message, context) {
@@ -54,6 +59,8 @@ class Router {
         return this._handler1(op.value, context)
       case 2:
         return this._handler2(op.value, context)
+      case 3:
+        return this._handler3(op.value, context)
       default:
         throw new Error('Handler not found for ID:' + op.id)
     }
@@ -100,8 +107,14 @@ const route1 = {
 }
 
 const route2 = {
-  name: '@basic-chat-multi-rooms/add-message',
+  name: '@basic-chat-multi-rooms/add-room',
   id: 2,
+  enc: getEncoding('@basic-chat-multi-rooms/room')
+}
+
+const route3 = {
+  name: '@basic-chat-multi-rooms/add-message',
+  id: 3,
   enc: getEncoding('@basic-chat-multi-rooms/message')
 }
 
@@ -111,8 +124,10 @@ function getRouteByName (name) {
       return route0
     case '@basic-chat-multi-rooms/add-invite':
       return route1
-    case '@basic-chat-multi-rooms/add-message':
+    case '@basic-chat-multi-rooms/add-room':
       return route2
+    case '@basic-chat-multi-rooms/add-message':
+      return route3
     default:
       throw new Error('Handler not found for name: ' + name)
   }
@@ -126,6 +141,8 @@ function getRouteById (id) {
       return route1
     case 2:
       return route2
+    case 3:
+      return route3
     default:
       throw new Error('Handler not found for ID: ' + id)
   }

@@ -3,10 +3,10 @@ import HyperdbBuilder from 'hyperdb/builder'
 import Hyperdispatch from 'hyperdispatch'
 import HRPC from 'hrpc'
 
-const SCHEMA_DIR = './spec/room/schema'
-const DB_DIR = './spec/room/db'
-const DISPATCH_DIR = './spec/room/dispatch'
-const HRPC_DIR = './spec/room/hrpc'
+const SCHEMA_DIR = './spec/schema'
+const DB_DIR = './spec/db'
+const DISPATCH_DIR = './spec/dispatch'
+const HRPC_DIR = './spec/hrpc'
 
 const hyperSchema = Hyperschema.from(SCHEMA_DIR)
 const schema = hyperSchema.namespace('basic-chat-multi-rooms')
@@ -24,6 +24,18 @@ schema.register({
     { name: 'publicKey', type: 'buffer', required: true },
     { name: 'expires', type: 'int', required: true }
   ]
+})
+schema.register({
+  name: 'room',
+  fields: [
+    { name: 'id', type: 'string', required: true },
+    { name: 'name', type: 'string', required: true }
+  ]
+})
+schema.register({
+  name: 'rooms',
+  array: true,
+  type: '@basic-chat-multi-rooms/room'
 })
 schema.register({
   name: 'message',
@@ -48,6 +60,11 @@ db.collections.register({
   key: ['id']
 })
 db.collections.register({
+  name: 'rooms',
+  schema: '@basic-chat-multi-rooms/room',
+  key: ['id']
+})
+db.collections.register({
   name: 'messages',
   schema: '@basic-chat-multi-rooms/message',
   key: ['id']
@@ -58,11 +75,20 @@ const hyperdispatch = Hyperdispatch.from(SCHEMA_DIR, DISPATCH_DIR, { offset: 0 }
 const dispatch = hyperdispatch.namespace('basic-chat-multi-rooms')
 dispatch.register({ name: 'add-writer', requestType: '@basic-chat-multi-rooms/writer' })
 dispatch.register({ name: 'add-invite', requestType: '@basic-chat-multi-rooms/invite' })
+dispatch.register({ name: 'add-room', requestType: '@basic-chat-multi-rooms/room' })
 dispatch.register({ name: 'add-message', requestType: '@basic-chat-multi-rooms/message' })
 Hyperdispatch.toDisk(hyperdispatch)
 
 const hrpc = HRPC.from(SCHEMA_DIR, HRPC_DIR)
 const rpc = hrpc.namespace('basic-chat-multi-rooms')
+rpc.register({
+  name: 'rooms',
+  request: { name: '@basic-chat-multi-rooms/rooms', send: true }
+})
+rpc.register({
+  name: 'add-room',
+  request: { name: 'string', send: true }
+})
 rpc.register({
   name: 'messages',
   request: { name: '@basic-chat-multi-rooms/messages', send: true }

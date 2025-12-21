@@ -3,6 +3,24 @@
   "schema": [
     {
       "id": 0,
+      "name": "@basic-chat-multi-rooms/rooms",
+      "request": {
+        "name": "@basic-chat-multi-rooms/rooms",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-chat-multi-rooms/add-room",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 2,
       "name": "@basic-chat-multi-rooms/messages",
       "request": {
         "name": "@basic-chat-multi-rooms/messages",
@@ -11,7 +29,7 @@
       "version": 1
     },
     {
-      "id": 1,
+      "id": 3,
       "name": "@basic-chat-multi-rooms/add-message",
       "request": {
         "name": "string",

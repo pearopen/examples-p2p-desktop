@@ -57,8 +57,32 @@ const encoding1 = {
   }
 }
 
-// @basic-chat-multi-rooms/message
+// @basic-chat-multi-rooms/room
 const encoding2 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.id)
+    c.string.preencode(state, m.name)
+  },
+  encode(state, m) {
+    c.string.encode(state, m.id)
+    c.string.encode(state, m.name)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+
+    return {
+      id: r0,
+      name: r1
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/rooms
+const encoding3 = c.array(c.frame(encoding2))
+
+// @basic-chat-multi-rooms/message
+const encoding4 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.text)
@@ -89,7 +113,79 @@ const encoding2 = {
 }
 
 // @basic-chat-multi-rooms/messages
-const encoding3 = c.array(c.frame(encoding2))
+const encoding5 = c.array(c.frame(encoding4))
+
+// @basic-chat-multi-rooms/invite/hyperdb#0
+const encoding6 = {
+  preencode(state, m) {
+    c.buffer.preencode(state, m.invite)
+    c.buffer.preencode(state, m.publicKey)
+    c.int.preencode(state, m.expires)
+  },
+  encode(state, m) {
+    c.buffer.encode(state, m.invite)
+    c.buffer.encode(state, m.publicKey)
+    c.int.encode(state, m.expires)
+  },
+  decode(state) {
+    const r1 = c.buffer.decode(state)
+    const r2 = c.buffer.decode(state)
+    const r3 = c.int.decode(state)
+
+    return {
+      id: null,
+      invite: r1,
+      publicKey: r2,
+      expires: r3
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/room/hyperdb#1
+const encoding7 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.name)
+  },
+  encode(state, m) {
+    c.string.encode(state, m.name)
+  },
+  decode(state) {
+    const r1 = c.string.decode(state)
+
+    return {
+      id: null,
+      name: r1
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/message/hyperdb#2
+const encoding8 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.text)
+    state.end++ // max flag is 1 so always one byte
+
+    if (m.info) c.json.preencode(state, m.info)
+  },
+  encode(state, m) {
+    const flags = m.info ? 1 : 0
+
+    c.string.encode(state, m.text)
+    c.uint.encode(state, flags)
+
+    if (m.info) c.json.encode(state, m.info)
+  },
+  decode(state) {
+    const r1 = c.string.decode(state)
+    const flags = c.uint.decode(state)
+
+    return {
+      id: null,
+      text: r1,
+      info: (flags & 1) !== 0 ? c.json.decode(state) : null
+    }
+  }
+}
 
 function setVersion(v) {
   version = v
@@ -118,10 +214,20 @@ function getEncoding(name) {
       return encoding0
     case '@basic-chat-multi-rooms/invite':
       return encoding1
-    case '@basic-chat-multi-rooms/message':
+    case '@basic-chat-multi-rooms/room':
       return encoding2
-    case '@basic-chat-multi-rooms/messages':
+    case '@basic-chat-multi-rooms/rooms':
       return encoding3
+    case '@basic-chat-multi-rooms/message':
+      return encoding4
+    case '@basic-chat-multi-rooms/messages':
+      return encoding5
+    case '@basic-chat-multi-rooms/invite/hyperdb#0':
+      return encoding6
+    case '@basic-chat-multi-rooms/room/hyperdb#1':
+      return encoding7
+    case '@basic-chat-multi-rooms/message/hyperdb#2':
+      return encoding8
     default:
       throw new Error('Encoder not found ' + name)
   }

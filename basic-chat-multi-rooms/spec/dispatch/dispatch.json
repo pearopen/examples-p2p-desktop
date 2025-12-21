@@ -16,6 +16,12 @@
     },
     {
       "id": 2,
+      "name": "@basic-chat-multi-rooms/add-room",
+      "requestType": "@basic-chat-multi-rooms/room",
+      "version": 1
+    },
+    {
+      "id": 3,
       "name": "@basic-chat-multi-rooms/add-message",
       "requestType": "@basic-chat-multi-rooms/message",
       "version": 1

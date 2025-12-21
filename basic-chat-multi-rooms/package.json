@@ -28,7 +28,7 @@
   },
   "scripts": {
     "clean": "rm -rf build",
-    "build:db": "node schemas/account.js && node schemas/room.js",
+    "build:db": "node schema.js",
     "build:swc": "swc ui -d build --copy-files --strip-leading-paths",
     "build:tailwind": "npx @tailwindcss/cli -i input.css -o output.css",
     "build": "npm run build:tailwind && npm run build:swc",

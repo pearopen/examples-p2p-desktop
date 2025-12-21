@@ -59,7 +59,7 @@ const collection0 = {
   indexes: []
 }
 
-// '@basic-chat-multi-rooms/messages' collection key
+// '@basic-chat-multi-rooms/rooms' collection key
 const collection1_key = new IndexEncoder([
   IndexEncoder.STRING
 ], { prefix: 1 })
@@ -69,10 +69,10 @@ function collection1_indexify (record) {
   return a === undefined ? [] : [a]
 }
 
-// '@basic-chat-multi-rooms/messages' value encoding
-const collection1_enc = getEncoding('@basic-chat-multi-rooms/message/hyperdb#1')
+// '@basic-chat-multi-rooms/rooms' value encoding
+const collection1_enc = getEncoding('@basic-chat-multi-rooms/room/hyperdb#1')
 
-// '@basic-chat-multi-rooms/messages' reconstruction function
+// '@basic-chat-multi-rooms/rooms' reconstruction function
 function collection1_reconstruct (version, keyBuf, valueBuf) {
   const key = collection1_key.decode(keyBuf)
   setVersion(version)
@@ -80,7 +80,7 @@ function collection1_reconstruct (version, keyBuf, valueBuf) {
   record.id = key[0]
   return record
 }
-// '@basic-chat-multi-rooms/messages' key reconstruction function
+// '@basic-chat-multi-rooms/rooms' key reconstruction function
 function collection1_reconstruct_key (keyBuf) {
   const key = collection1_key.decode(keyBuf)
   return {
@@ -88,9 +88,9 @@ function collection1_reconstruct_key (keyBuf) {
   }
 }
 
-// '@basic-chat-multi-rooms/messages'
+// '@basic-chat-multi-rooms/rooms'
 const collection1 = {
-  name: '@basic-chat-multi-rooms/messages',
+  name: '@basic-chat-multi-rooms/rooms',
   id: 1,
   encodeKey (record) {
     const key = [record.id]
@@ -114,9 +114,65 @@ const collection1 = {
   indexes: []
 }
 
+// '@basic-chat-multi-rooms/messages' collection key
+const collection2_key = new IndexEncoder([
+  IndexEncoder.STRING
+], { prefix: 2 })
+
+function collection2_indexify (record) {
+  const a = record.id
+  return a === undefined ? [] : [a]
+}
+
+// '@basic-chat-multi-rooms/messages' value encoding
+const collection2_enc = getEncoding('@basic-chat-multi-rooms/message/hyperdb#2')
+
+// '@basic-chat-multi-rooms/messages' reconstruction function
+function collection2_reconstruct (version, keyBuf, valueBuf) {
+  const key = collection2_key.decode(keyBuf)
+  setVersion(version)
+  const record = c.decode(collection2_enc, valueBuf)
+  record.id = key[0]
+  return record
+}
+// '@basic-chat-multi-rooms/messages' key reconstruction function
+function collection2_reconstruct_key (keyBuf) {
+  const key = collection2_key.decode(keyBuf)
+  return {
+    id: key[0]
+  }
+}
+
+// '@basic-chat-multi-rooms/messages'
+const collection2 = {
+  name: '@basic-chat-multi-rooms/messages',
+  id: 2,
+  encodeKey (record) {
+    const key = [record.id]
+    return collection2_key.encode(key)
+  },
+  encodeKeyRange ({ gt, lt, gte, lte } = {}) {
+    return collection2_key.encodeRange({
+      gt: gt ? collection2_indexify(gt) : null,
+      lt: lt ? collection2_indexify(lt) : null,
+      gte: gte ? collection2_indexify(gte) : null,
+      lte: lte ? collection2_indexify(lte) : null
+    })
+  },
+  encodeValue (version, record) {
+    setVersion(version)
+    return c.encode(collection2_enc, record)
+  },
+  trigger: null,
+  reconstruct: collection2_reconstruct,
+  reconstructKey: collection2_reconstruct_key,
+  indexes: []
+}
+
 const collections = [
   collection0,
-  collection1
+  collection1,
+  collection2
 ]
 
 const indexes = [
@@ -127,7 +183,8 @@ export default { version, collections, indexes, resolveCollection, resolveIndex 
 function resolveCollection (name) {
   switch (name) {
     case '@basic-chat-multi-rooms/invites': return collection0
-    case '@basic-chat-multi-rooms/messages': return collection1
+    case '@basic-chat-multi-rooms/rooms': return collection1
+    case '@basic-chat-multi-rooms/messages': return collection2
     default: return null
   }
 }

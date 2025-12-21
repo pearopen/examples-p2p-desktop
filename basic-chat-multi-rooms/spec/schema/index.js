@@ -57,8 +57,32 @@ const encoding1 = {
   }
 }
 
-// @basic-chat-multi-rooms/message
+// @basic-chat-multi-rooms/room
 const encoding2 = {
+  preencode(state, m) {
+    c.string.preencode(state, m.id)
+    c.string.preencode(state, m.name)
+  },
+  encode(state, m) {
+    c.string.encode(state, m.id)
+    c.string.encode(state, m.name)
+  },
+  decode(state) {
+    const r0 = c.string.decode(state)
+    const r1 = c.string.decode(state)
+
+    return {
+      id: r0,
+      name: r1
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/rooms
+const encoding3 = c.array(c.frame(encoding2))
+
+// @basic-chat-multi-rooms/message
+const encoding4 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.text)
@@ -89,7 +113,7 @@ const encoding2 = {
 }
 
 // @basic-chat-multi-rooms/messages
-const encoding3 = c.array(c.frame(encoding2))
+const encoding5 = c.array(c.frame(encoding4))
 
 function setVersion(v) {
   version = v
@@ -118,10 +142,14 @@ function getEncoding(name) {
       return encoding0
     case '@basic-chat-multi-rooms/invite':
       return encoding1
-    case '@basic-chat-multi-rooms/message':
+    case '@basic-chat-multi-rooms/room':
       return encoding2
-    case '@basic-chat-multi-rooms/messages':
+    case '@basic-chat-multi-rooms/rooms':
       return encoding3
+    case '@basic-chat-multi-rooms/message':
+      return encoding4
+    case '@basic-chat-multi-rooms/messages':
+      return encoding5
     default:
       throw new Error('Encoder not found ' + name)
   }

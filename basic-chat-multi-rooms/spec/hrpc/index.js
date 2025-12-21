@@ -6,10 +6,14 @@ import { c, RPC, RPCStream, RPCRequestStream } from 'hrpc/runtime'
 import { getEncoding } from './messages.js'
 
 const methods = new Map([
-  ['@basic-chat-multi-rooms/messages', 0],
-  [0, '@basic-chat-multi-rooms/messages'],
-  ['@basic-chat-multi-rooms/add-message', 1],
-  [1, '@basic-chat-multi-rooms/add-message']
+  ['@basic-chat-multi-rooms/rooms', 0],
+  [0, '@basic-chat-multi-rooms/rooms'],
+  ['@basic-chat-multi-rooms/add-room', 1],
+  [1, '@basic-chat-multi-rooms/add-room'],
+  ['@basic-chat-multi-rooms/messages', 2],
+  [2, '@basic-chat-multi-rooms/messages'],
+  ['@basic-chat-multi-rooms/add-message', 3],
+  [3, '@basic-chat-multi-rooms/add-message']
 ])
 
 class HRPC {
@@ -17,6 +21,8 @@ class HRPC {
     this._stream = stream
     this._handlers = []
     this._requestEncodings = new Map([
+      ['@basic-chat-multi-rooms/rooms', getEncoding('@basic-chat-multi-rooms/rooms')],
+      ['@basic-chat-multi-rooms/add-room', c.string],
       ['@basic-chat-multi-rooms/messages', getEncoding('@basic-chat-multi-rooms/messages')],
       ['@basic-chat-multi-rooms/add-message', c.string]
     ])
@@ -118,12 +124,28 @@ class HRPC {
     }
   }
 
+  rooms(args) {
+    return this._callSync('@basic-chat-multi-rooms/rooms', args)
+  }
+
+  addRoom(args) {
+    return this._callSync('@basic-chat-multi-rooms/add-room', args)
+  }
+
   messages(args) {
     return this._callSync('@basic-chat-multi-rooms/messages', args)
   }
 
   addMessage(args) {
     return this._callSync('@basic-chat-multi-rooms/add-message', args)
+  }
+
+  onRooms(responseFn) {
+    this._handlers['@basic-chat-multi-rooms/rooms'] = responseFn
+  }
+
+  onAddRoom(responseFn) {
+    this._handlers['@basic-chat-multi-rooms/add-room'] = responseFn
   }
 
   onMessages(responseFn) {
@@ -148,6 +170,8 @@ class HRPC {
   _requestIsSend(command) {
     return [
       // prettier-ignore
+      '@basic-chat-multi-rooms/rooms',
+      '@basic-chat-multi-rooms/add-room',
       '@basic-chat-multi-rooms/messages',
       '@basic-chat-multi-rooms/add-message'
     ].includes(command)
