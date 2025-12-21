@@ -32,7 +32,7 @@
       "id": 3,
       "name": "@basic-chat-multi-rooms/messages",
       "request": {
-        "name": "@basic-chat-multi-rooms/messages",
+        "name": "@basic-chat-multi-rooms/get-messages",
         "send": true
       },
       "version": 1

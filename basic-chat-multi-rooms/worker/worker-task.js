@@ -22,7 +22,7 @@ export default class WorkerTask extends ReadyResource {
     this.account = new ChatAccount(this.store, this.swarm, this.invite)
     this.debounceRooms = debounce(() => this._rooms())
     this.account.on('update', () => this.debounceRooms())
-    this.account.on('messages', (messages) => this.rpc.messages(messages))
+    this.account.on('messages', (roomId, messages) => this.rpc.messages({ messages, roomId }))
   }
 
   async _open () {

@@ -96,7 +96,6 @@ const encoding4 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.text)
-    c.string.preencode(state, m.roomId)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -106,7 +105,6 @@ const encoding4 = {
 
     c.string.encode(state, m.id)
     c.string.encode(state, m.text)
-    c.string.encode(state, m.roomId)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
@@ -114,13 +112,11 @@ const encoding4 = {
   decode(state) {
     const r0 = c.string.decode(state)
     const r1 = c.string.decode(state)
-    const r2 = c.string.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: r0,
       text: r1,
-      roomId: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
@@ -129,8 +125,29 @@ const encoding4 = {
 // @basic-chat-multi-rooms/messages
 const encoding5 = c.array(c.frame(encoding4))
 
-// @basic-chat-multi-rooms/add-message
+// @basic-chat-multi-rooms/get-messages
 const encoding6 = {
+  preencode(state, m) {
+    encoding5.preencode(state, m.messages)
+    c.string.preencode(state, m.roomId)
+  },
+  encode(state, m) {
+    encoding5.encode(state, m.messages)
+    c.string.encode(state, m.roomId)
+  },
+  decode(state) {
+    const r0 = encoding5.decode(state)
+    const r1 = c.string.decode(state)
+
+    return {
+      messages: r0,
+      roomId: r1
+    }
+  }
+}
+
+// @basic-chat-multi-rooms/add-message
+const encoding7 = {
   preencode(state, m) {
     c.string.preencode(state, m.text)
     c.string.preencode(state, m.roomId)
@@ -185,8 +202,10 @@ function getEncoding(name) {
       return encoding4
     case '@basic-chat-multi-rooms/messages':
       return encoding5
-    case '@basic-chat-multi-rooms/add-message':
+    case '@basic-chat-multi-rooms/get-messages':
       return encoding6
+    case '@basic-chat-multi-rooms/add-message':
+      return encoding7
     default:
       throw new Error('Encoder not found ' + name)
   }

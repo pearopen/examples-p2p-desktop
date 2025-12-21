@@ -162,10 +162,10 @@ export default class ChatRoom extends ReadyResource {
     return await this.view.find('@basic-chat-multi-rooms/messages', { reverse, limit }).toArray()
   }
 
-  async addMessage (roomId, text, info) {
+  async addMessage (text, info) {
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-message', { id, text, roomId, info })
+      ChatDispatch.encode('@basic-chat-multi-rooms/add-message', { id, text, info })
     )
   }
 }

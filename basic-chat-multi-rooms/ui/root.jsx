@@ -12,7 +12,7 @@ function App () {
   const [messageInput, setMessageInput] = useState('')
 
   const roomId = selectedRoomId || rooms[0]?.id
-  const roomMessages = roomId ? messages.filter(msg => msg.roomId === roomId) : []
+  const roomMessages = messages[roomId] || []
 
   const onCreateRoom = () => {
     if (!roomNameInput) {

@@ -11,11 +11,11 @@ stream.pause()
 
 export default function useWorker () {
   const [rooms, setRooms] = useState([])
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState({})
 
   useEffect(() => {
     rpc.onRooms((data) => setRooms(data))
-    rpc.onMessages((data) => setMessages(data))
+    rpc.onMessages((data) => setMessages(prev => ({ ...prev, [data.roomId]: data.messages })))
     stream.resume()
     return () => pipe.end()
   }, [])

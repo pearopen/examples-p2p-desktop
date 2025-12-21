@@ -43,7 +43,6 @@ schema.register({
   fields: [
     { name: 'id', type: 'string', required: true },
     { name: 'text', type: 'string', required: true },
-    { name: 'roomId', type: 'string', required: true },
     { name: 'info', type: 'json' }
   ]
 })
@@ -51,6 +50,13 @@ schema.register({
   name: 'messages',
   array: true,
   type: '@basic-chat-multi-rooms/message'
+})
+schema.register({
+  name: 'get-messages',
+  fields: [
+    { name: 'messages', type: '@basic-chat-multi-rooms/messages', required: true },
+    { name: 'roomId', type: 'string', required: true }
+  ]
 })
 schema.register({
   name: 'add-message',
@@ -104,7 +110,7 @@ rpc.register({
 })
 rpc.register({
   name: 'messages',
-  request: { name: '@basic-chat-multi-rooms/messages', send: true }
+  request: { name: '@basic-chat-multi-rooms/get-messages', send: true }
 })
 rpc.register({
   name: 'add-message',

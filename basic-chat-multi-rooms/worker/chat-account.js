@@ -95,10 +95,11 @@ export default class ChatAccount extends ReadyResource {
       const room = new ChatRoom(roomStore, this.swarm, { name: item.name, info: item.info })
       this.rooms[item.id] = room
 
-      this._watchMessages(room)
+      this._watchMessages(item.id)
 
       await room.ready()
       room.info.invite = await room.getInvite()
+      await this._messages(item.id)
     }))
   }
 
@@ -170,14 +171,14 @@ export default class ChatAccount extends ReadyResource {
     const room = new ChatRoom(roomStore, this.swarm, { name, info })
     this.rooms[id] = room
 
-    this._watchMessages(room)
+    this._watchMessages(id)
 
     await room.ready()
     await room.addRoomInfo()
     room.info.invite = await room.getInvite()
 
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name, info })
+      ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, info: room.info })
     )
   }
 
@@ -194,13 +195,14 @@ export default class ChatAccount extends ReadyResource {
       if (remoteRoom && remoteRoom.name !== room.name) {
         room.name = remoteRoom.name
         room.info = remoteRoom.info
+        room.info.invite = invite
 
         await this.base.append(
-          ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: remoteRoom.name, info: remoteRoom.info })
+          ChatDispatch.encode('@basic-chat-multi-rooms/add-room', { id, name: room.name, info: room.info })
         )
       }
     })
-    this._watchMessages(room)
+    this._watchMessages(id)
 
     await room.ready()
   }
@@ -208,15 +210,21 @@ export default class ChatAccount extends ReadyResource {
   async addMessage (roomId, text, info) {
     const room = this.rooms[roomId]
     if (!room) throw new Error('Room not found')
-    await room.addMessage(roomId, text, info)
+    await room.addMessage(text, info)
   }
 
-  async _watchMessages (room) {
-    const debounceMessages = debounce(async () => {
-      const messages = await room.getMessages()
-      messages.sort((a, b) => a.info.at - b.info.at)
-      this.emit('messages', messages)
-    })
+  async _messages (roomId) {
+    const room = this.rooms[roomId]
+    if (!room) throw new Error('Room not found')
+    const messages = await room.getMessages()
+    messages.sort((a, b) => a.info.at - b.info.at)
+    this.emit('messages', roomId, messages)
+  }
+
+  _watchMessages (roomId) {
+    const room = this.rooms[roomId]
+    if (!room) throw new Error('Room not found')
+    const debounceMessages = debounce(() => this._messages(roomId))
     room.on('update', async () => debounceMessages())
   }
 }
