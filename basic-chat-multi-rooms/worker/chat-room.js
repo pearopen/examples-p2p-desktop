@@ -148,7 +148,7 @@ export default class ChatRoom extends ReadyResource {
   }
 
   async getRoomInfo () {
-    return (await this.view.find('@basic-chat-multi-rooms/rooms', {}).toArray())[0]
+    return await this.view.findOne('@basic-chat-multi-rooms/rooms', {})
   }
 
   async addRoomInfo () {
