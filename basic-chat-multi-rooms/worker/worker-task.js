@@ -12,6 +12,7 @@ export default class WorkerTask extends ReadyResource {
     /** @type {InstanceType<typeof import('../spec/hrpc').default>} */
     this.rpc = rpc
     this.storage = storage
+    this.invite = opts.invite
     this.name = opts.name || `User ${Date.now()}`
 
     this.store = new Corestore(storage)
