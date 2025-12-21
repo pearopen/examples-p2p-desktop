@@ -1,0 +1,74 @@
+import Hyperschema from 'hyperschema'
+import HyperdbBuilder from 'hyperdb/builder'
+import Hyperdispatch from 'hyperdispatch'
+import HRPC from 'hrpc'
+
+const SCHEMA_DIR = './spec/schema'
+const DB_DIR = './spec/db'
+const DISPATCH_DIR = './spec/dispatch'
+const HRPC_DIR = './spec/hrpc'
+
+const hyperSchema = Hyperschema.from(SCHEMA_DIR)
+const schema = hyperSchema.namespace('basic-chat-blind-peering')
+schema.register({
+  name: 'writer',
+  fields: [
+    { name: 'key', type: 'buffer', required: true }
+  ]
+})
+schema.register({
+  name: 'invite',
+  fields: [
+    { name: 'id', type: 'buffer', required: true },
+    { name: 'invite', type: 'buffer', required: true },
+    { name: 'publicKey', type: 'buffer', required: true },
+    { name: 'expires', type: 'int', required: true }
+  ]
+})
+schema.register({
+  name: 'message',
+  fields: [
+    { name: 'id', type: 'string', required: true },
+    { name: 'text', type: 'string', required: true },
+    { name: 'info', type: 'json' }
+  ]
+})
+schema.register({
+  name: 'messages',
+  array: true,
+  type: '@basic-chat-blind-peering/message'
+})
+Hyperschema.toDisk(hyperSchema)
+
+const hyperdb = HyperdbBuilder.from(SCHEMA_DIR, DB_DIR)
+const db = hyperdb.namespace('basic-chat-blind-peering')
+db.collections.register({
+  name: 'invites',
+  schema: '@basic-chat-blind-peering/invite',
+  key: ['id']
+})
+db.collections.register({
+  name: 'messages',
+  schema: '@basic-chat-blind-peering/message',
+  key: ['id']
+})
+HyperdbBuilder.toDisk(hyperdb)
+
+const hyperdispatch = Hyperdispatch.from(SCHEMA_DIR, DISPATCH_DIR, { offset: 0 })
+const dispatch = hyperdispatch.namespace('basic-chat-blind-peering')
+dispatch.register({ name: 'add-writer', requestType: '@basic-chat-blind-peering/writer' })
+dispatch.register({ name: 'add-invite', requestType: '@basic-chat-blind-peering/invite' })
+dispatch.register({ name: 'add-message', requestType: '@basic-chat-blind-peering/message' })
+Hyperdispatch.toDisk(hyperdispatch)
+
+const hrpc = HRPC.from(SCHEMA_DIR, HRPC_DIR)
+const rpc = hrpc.namespace('basic-chat-blind-peering')
+rpc.register({
+  name: 'messages',
+  request: { name: '@basic-chat-blind-peering/messages', send: true }
+})
+rpc.register({
+  name: 'add-message',
+  request: { name: 'string', send: true }
+})
+HRPC.toDisk(hrpc)
