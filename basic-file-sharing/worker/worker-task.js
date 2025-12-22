@@ -11,6 +11,7 @@ export default class WorkerTask extends ReadyResource {
   constructor (rpc, storage, opts = {}) {
     super()
 
+    /** @type {InstanceType<typeof import('../spec/hrpc').default>} */
     this.rpc = rpc
     this.storage = storage
     this.invite = opts.invite
