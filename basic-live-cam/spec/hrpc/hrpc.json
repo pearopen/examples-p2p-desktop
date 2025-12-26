@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-live-cam/videos",
+      "request": {
+        "name": "@basic-live-cam/videos",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-live-cam/add-video",
+      "request": {
+        "name": "string",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-live-cam/messages",
+      "request": {
+        "name": "@basic-live-cam/messages",
+        "send": true
+      },
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-live-cam/add-message",
+      "request": {
+        "name": "@basic-live-cam/add-message",
+        "send": true
+      },
+      "version": 1
+    }
+  ]
+}

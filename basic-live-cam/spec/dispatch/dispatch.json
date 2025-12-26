@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "id": 0,
+      "name": "@basic-live-cam/add-writer",
+      "requestType": "@basic-live-cam/writer",
+      "version": 1
+    },
+    {
+      "id": 1,
+      "name": "@basic-live-cam/add-invite",
+      "requestType": "@basic-live-cam/invite",
+      "version": 1
+    },
+    {
+      "id": 2,
+      "name": "@basic-live-cam/add-video",
+      "requestType": "@basic-live-cam/video",
+      "version": 1
+    },
+    {
+      "id": 3,
+      "name": "@basic-live-cam/add-message",
+      "requestType": "@basic-live-cam/message",
+      "version": 1
+    }
+  ]
+}
