@@ -40,8 +40,10 @@
   "dependencies": {
     "autobase": "^7.24.0",
     "b4a": "^1.7.3",
+    "bare-ffmpeg": "^1.0.0",
     "bare-fs": "^4.5.2",
     "bare-path": "^3.0.0",
+    "bare-subprocess": "^5.2.2",
     "blind-pairing": "^2.3.1",
     "corestore": "^7.7.0",
     "debounceify": "^1.1.0",
@@ -72,6 +74,10 @@
     "tailwindcss": "^4.1.17"
   },
   "imports": {
+    "child_process": {
+      "bare": "bare-subprocess",
+      "default": "child_process"
+    },
     "fs": {
       "bare": "bare-fs",
       "default": "fs"
