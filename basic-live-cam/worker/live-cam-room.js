@@ -98,7 +98,7 @@ export default class LiveCamRoom extends ReadyResource {
     await this.blobs.ready()
     await this.blobServer.listen()
 
-    this._startLiveCam()
+    if (!this.invite) this._startLiveCam()
   }
 
   async _close () {
