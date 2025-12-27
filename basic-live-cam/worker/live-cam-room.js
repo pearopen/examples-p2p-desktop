@@ -191,6 +191,7 @@ export default class LiveCamRoom extends ReadyResource {
     )
   }
 
+  // TODO: use bare-ffmpeg
   _startLiveCam () {
     const FF_INPUT = [
       '-f', 'avfoundation',
