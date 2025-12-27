@@ -31,3 +31,9 @@ pear run --store /tmp/user1 <pear-link> --name user1
 # user2: join room
 pear run --store /tmp/user2 <pear-link> --name user2 --invite <invite>
 ```
+
+## Troubleshoot
+Use `--reset` to reset everything, e.g.
+```shell
+pear run --store /tmp/user1 . --name user1 --reset
+```
