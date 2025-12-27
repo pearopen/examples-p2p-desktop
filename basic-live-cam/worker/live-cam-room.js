@@ -1,5 +1,6 @@
 import Autobase from 'autobase'
 import b4a from 'b4a'
+import ffmpeg from 'bare-ffmpeg'
 import BlindPairing from 'blind-pairing'
 import { spawn } from 'child_process'
 import Hyperblobs from 'hyperblobs'
@@ -191,10 +192,9 @@ export default class LiveCamRoom extends ReadyResource {
     )
   }
 
-  // TODO: use bare-ffmpeg
-  _startLiveCam () {
+  async _startLiveCam () {
     const FF_INPUT = [
-      '-f', 'avfoundation',
+      '-f', 'avfoundation', // adjust based on your platform
       '-framerate', '30',
       '-i', '0'
     ]
@@ -207,10 +207,22 @@ export default class LiveCamRoom extends ReadyResource {
       '-f', 'mp4',
       'pipe:1'
     ]
-    this.ffmpeg = spawn('ffmpeg', [...FF_INPUT, ...FF_OUTPUT], { stdio: ['ignore', 'pipe', 'inherit'] })
+    const FF_ARGS = [...FF_INPUT, ...FF_OUTPUT]
+
+    let ffmpegProc, ffmpegStdout
+    try {
+      const res = await _runBareFFmpeg()
+      ffmpegProc = res.ffmpegProc
+      ffmpegStdout = res.ffmpegStdout
+    } catch (err) {
+      console.error('Failed to run with bare-ffmpeg, fallback to spawn ffmpeg', err)
+      ffmpegProc = spawn('ffmpeg', FF_ARGS, { stdio: ['ignore', 'pipe', 'inherit'] })
+      ffmpegStdout = ffmpegProc.stdout
+      this.ffmpeg = ffmpegProc
+    }
 
     let buffer = Buffer.alloc(0)
-    this.ffmpeg.stdout.on('data', async (chunk) => {
+    ffmpegStdout.on('data', async (chunk) => {
       buffer = Buffer.concat([buffer, chunk])
       let idx
       while ((idx = buffer.indexOf('moof', 4)) !== -1) {
@@ -221,9 +233,13 @@ export default class LiveCamRoom extends ReadyResource {
         }
       }
     })
-    this.ffmpeg.stdout.on('end', async () => {
+    ffmpegStdout.on('end', async () => {
       if (buffer.length) await this._onNewFragment(buffer)
     })
+  }
+
+  async _runBareFFmpeg () {
+    throw new Error('TODO')
   }
 
   async _onNewFragment (frag) {
