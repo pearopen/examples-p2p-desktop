@@ -47,7 +47,6 @@ export default class Worker extends ReadyResource {
 
   async _videos () {
     const videos = await this.room.getVideos()
-    videos.sort((a, b) => a.info.at - b.info.at)
     this.rpc.videos(videos)
   }
 

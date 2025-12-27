@@ -2,13 +2,10 @@ import Autobase from 'autobase'
 import b4a from 'b4a'
 import BlindPairing from 'blind-pairing'
 import { spawn } from 'child_process'
-import fs from 'fs'
-import getMimeType from 'get-mime-type'
 import Hyperblobs from 'hyperblobs'
 import BlobServer from 'hypercore-blob-server'
 import idEnc from 'hypercore-id-encoding'
 import HyperDB from 'hyperdb'
-import path from 'path'
 import ReadyResource from 'ready-resource'
 import z32 from 'z32'
 
@@ -38,6 +35,7 @@ export default class LiveCamRoom extends ReadyResource {
     this.blobsCores = {}
 
     this.ffmpeg = null
+    this.fragIdx = 0
   }
 
   async _open () {
@@ -166,8 +164,8 @@ export default class LiveCamRoom extends ReadyResource {
     )
   }
 
-  async getVideos ({ reverse = true, limit = 100 } = {}) {
-    const videos = await this.view.find('@basic-live-cam/videos', { reverse, limit }).toArray()
+  async getVideos ({ limit = 100 } = {}) {
+    const videos = await this.view.find('@basic-live-cam/videos', { limit }).toArray()
     for (const item of videos) {
       if (!this.blobsCores[item.blob.key]) {
         const blobsCore = this.store.get({ key: idEnc.decode(item.blob.key) })
@@ -177,9 +175,9 @@ export default class LiveCamRoom extends ReadyResource {
       }
     }
     return videos.map(item => {
-      const link = this.blobServer.getLink(item.blob.key, { blob: item.blob, type: 'video/mp4' })
+      const link = this.blobServer.getLink(item.blob.key, { blob: item.blob })
       return { ...item, info: { ...item.info, link } }
-    })
+    }).sort((a, b) => a.info.fragIdx - b.info.fragIdx)
   }
 
   async getMessages ({ reverse = true, limit = 100 } = {}) {
@@ -211,7 +209,6 @@ export default class LiveCamRoom extends ReadyResource {
     this.ffmpeg = spawn('ffmpeg', [...FF_INPUT, ...FF_OUTPUT], { stdio: ['ignore', 'pipe', 'inherit'] })
 
     let buffer = Buffer.alloc(0)
-    let fragmentIdx = 0
     this.ffmpeg.stdout.on('data', async (chunk) => {
       buffer = Buffer.concat([buffer, chunk])
       let idx
@@ -219,17 +216,16 @@ export default class LiveCamRoom extends ReadyResource {
         if (idx !== 0) {
           const frag = buffer.subarray(0, idx)
           buffer = buffer.subarray(idx)
-          await this._onNewFragment(frag, fragmentIdx)
-          fragmentIdx += 1
+          await this._onNewFragment(frag)
         }
       }
     })
     this.ffmpeg.stdout.on('end', async () => {
-      if (buffer.length) await this._onNewFragment(buffer, fragmentIdx)
+      if (buffer.length) await this._onNewFragment(buffer)
     })
   }
 
-  async _onNewFragment (frag, fragIdx) {
+  async _onNewFragment (frag) {
     const ws = this.blobs.createWriteStream()
     ws.write(frag)
     ws.end()
@@ -239,7 +235,8 @@ export default class LiveCamRoom extends ReadyResource {
 
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      LiveCamDispatch.encode('@basic-live-cam/add-video', { id, blob, info: { fragIdx } })
+      LiveCamDispatch.encode('@basic-live-cam/add-video', { id, blob, info: { fragIdx: this.fragIdx } })
     )
+    this.fragIdx += 1
   }
 }
