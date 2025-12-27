@@ -166,6 +166,17 @@ export default class LiveCamRoom extends ReadyResource {
     )
   }
 
+  async getMessages ({ reverse = true, limit = 100 } = {}) {
+    return await this.view.find('@basic-live-cam/messages', { reverse, limit }).toArray()
+  }
+
+  async addMessage (text, info) {
+    const id = Math.random().toString(16).slice(2)
+    await this.base.append(
+      LiveCamDispatch.encode('@basic-live-cam/add-message', { id, text, info })
+    )
+  }
+
   async getVideos ({ limit = 100 } = {}) {
     const videos = await this.view.find('@basic-live-cam/videos', { limit }).toArray()
     for (const item of videos) {
@@ -180,17 +191,6 @@ export default class LiveCamRoom extends ReadyResource {
       const link = this.blobServer.getLink(item.blob.key, { blob: item.blob })
       return { ...item, info: { ...item.info, link } }
     }).sort((a, b) => a.info.fragIdx - b.info.fragIdx)
-  }
-
-  async getMessages ({ reverse = true, limit = 100 } = {}) {
-    return await this.view.find('@basic-live-cam/messages', { reverse, limit }).toArray()
-  }
-
-  async addMessage (text, info) {
-    const id = Math.random().toString(16).slice(2)
-    await this.base.append(
-      LiveCamDispatch.encode('@basic-live-cam/add-message', { id, text, info })
-    )
   }
 
   async _startLiveCam () {
