@@ -6,27 +6,40 @@ import useWorker from '../lib/use-worker'
 function App () {
   const { videos, messages, addMessage } = useWorker()
   const videoRef = useRef(null)
+  const videosRef = useRef(videos)
 
   const [input, setInput] = useState('')
 
-  const firstLink = videos[0]?.info?.link
+  useEffect(() => {
+    videosRef.current = videos
+  }, [videos])
 
   useEffect(() => {
-    if (!firstLink) return
+    let stop = false
     const video = videoRef.current
-    if (!video) return
-    console.log('🚀 ~ App ~ firstLink:', firstLink)
-    console.log('🚀 ~ App ~ video:', video)
-
     const mediaSource = new window.MediaSource()
     video.src = URL.createObjectURL(mediaSource)
+
     mediaSource.addEventListener('sourceopen', async () => {
-      const res = await fetch(firstLink)
-      const data = await res.arrayBuffer()
       const sb = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.640028"')
-      sb.appendBuffer(data)
+      let fragIdx = 0
+      while (!stop) {
+        const fragment = videosRef.current?.[fragIdx]
+        if (!fragment) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          continue
+        }
+        const res = await fetch(fragment.info.link)
+        const data = await res.arrayBuffer()
+        sb.appendBuffer(data)
+        await new Promise(resolve => sb.addEventListener('updateend', resolve, { once: true }))
+        fragIdx += 1
+      }
     })
-  }, [firstLink])
+    return () => {
+      stop = true
+    }
+  }, [])
 
   const onSend = (videoId) => {
     addMessage({ text: input, info: { videoId } })
@@ -45,7 +58,7 @@ function App () {
             placeholder='Type a comment...'
             className='flex-1 p-2 border border-gray-300'
           />
-          <button className='bg-white text-blue-500 px-4' onClick={() => onSend(video.id)}>Send</button>
+          <button className='bg-white text-blue-500 px-4' onClick={() => onSend(videos[0]?.id)}>Send</button>
         </div>
         <div className='border-b bg-white mb-4'>
           <h2 className='font-bold'>Comments ({messages.length})</h2>
