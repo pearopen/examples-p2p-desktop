@@ -24,7 +24,7 @@ class HRPC {
       ['@basic-live-cam/invite', c.string],
       ['@basic-live-cam/videos', getEncoding('@basic-live-cam/videos')],
       ['@basic-live-cam/messages', getEncoding('@basic-live-cam/messages')],
-      ['@basic-live-cam/add-message', getEncoding('@basic-live-cam/add-message')]
+      ['@basic-live-cam/add-message', c.string]
     ])
     this._responseEncodings = new Map([
     ])

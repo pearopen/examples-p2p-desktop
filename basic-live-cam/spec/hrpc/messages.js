@@ -125,33 +125,6 @@ const encoding4 = {
 // @basic-live-cam/messages
 const encoding5 = c.array(c.frame(encoding4))
 
-// @basic-live-cam/add-message
-const encoding6 = {
-  preencode(state, m) {
-    c.string.preencode(state, m.text)
-    state.end++ // max flag is 1 so always one byte
-
-    if (m.info) c.json.preencode(state, m.info)
-  },
-  encode(state, m) {
-    const flags = m.info ? 1 : 0
-
-    c.string.encode(state, m.text)
-    c.uint.encode(state, flags)
-
-    if (m.info) c.json.encode(state, m.info)
-  },
-  decode(state) {
-    const r0 = c.string.decode(state)
-    const flags = c.uint.decode(state)
-
-    return {
-      text: r0,
-      info: (flags & 1) !== 0 ? c.json.decode(state) : null
-    }
-  }
-}
-
 function setVersion(v) {
   version = v
 }
@@ -187,8 +160,6 @@ function getEncoding(name) {
       return encoding4
     case '@basic-live-cam/messages':
       return encoding5
-    case '@basic-live-cam/add-message':
-      return encoding6
     default:
       throw new Error('Encoder not found ' + name)
   }

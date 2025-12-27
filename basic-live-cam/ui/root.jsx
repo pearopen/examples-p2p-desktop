@@ -42,8 +42,8 @@ function App () {
     }
   }, [])
 
-  const onSend = (videoId) => {
-    addMessage({ text: input, info: { videoId } })
+  const onSend = () => {
+    addMessage(input)
     setInput('')
   }
 
@@ -60,7 +60,7 @@ function App () {
             placeholder='Type a comment...'
             className='flex-1 p-2 border border-gray-300'
           />
-          <button className='bg-white text-blue-500 px-4' onClick={() => onSend(videos[0]?.id)}>Send</button>
+          <button className='bg-white text-blue-500 px-4' onClick={onSend}>Send</button>
         </div>
         <div className='border-b bg-white mb-4'>
           <h2 className='font-bold'>Comments ({messages.length})</h2>

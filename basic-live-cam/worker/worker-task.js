@@ -33,7 +33,7 @@ export default class Worker extends ReadyResource {
     await this.room.ready()
 
     this.rpc.onAddMessage(async (data) => {
-      await this.room.addMessage(data.text, { ...data.info, name: this.name, at: Date.now() })
+      await this.room.addMessage(data, { name: this.name, at: Date.now() })
     })
     await this.debounceVideos()
     await this.debounceMessages()

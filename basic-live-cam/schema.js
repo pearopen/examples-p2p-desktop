@@ -51,13 +51,6 @@ schema.register({
   array: true,
   type: '@basic-live-cam/message'
 })
-schema.register({
-  name: 'add-message',
-  fields: [
-    { name: 'text', type: 'string', required: true },
-    { name: 'info', type: 'json' }
-  ]
-})
 Hyperschema.toDisk(hyperSchema)
 
 const hyperdb = HyperdbBuilder.from(SCHEMA_DIR, DB_DIR)
@@ -103,6 +96,6 @@ rpc.register({
 })
 rpc.register({
   name: 'add-message',
-  request: { name: '@basic-live-cam/add-message', send: true }
+  request: { name: 'string', send: true }
 })
 HRPC.toDisk(hrpc)
