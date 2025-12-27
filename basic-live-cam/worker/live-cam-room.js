@@ -8,6 +8,7 @@ import BlobServer from 'hypercore-blob-server'
 import idEnc from 'hypercore-id-encoding'
 import HyperDB from 'hyperdb'
 import ReadyResource from 'ready-resource'
+import { isLinux, isWindows } from 'which-runtime'
 import z32 from 'z32'
 
 import * as LiveCamDispatch from '../spec/dispatch'
@@ -193,11 +194,24 @@ export default class LiveCamRoom extends ReadyResource {
   }
 
   async _startLiveCam () {
-    const FF_INPUT = [
-      '-f', 'avfoundation', // adjust based on your platform
+    let FF_INPUT = [
+      '-f', 'avfoundation',
       '-framerate', '30',
       '-i', '0'
     ]
+    if (isLinux) {
+      FF_INPUT = [
+        '-f', 'v4l2',
+        '-framerate', '30',
+        '-i', '/dev/video0'
+      ]
+    } else if (isWindows) {
+      FF_INPUT = [
+        '-f', 'dshow',
+        '-framerate', '30',
+        '-i', 'video=Integrated Camera' // adjust device name
+      ]
+    }
     const FF_OUTPUT = [
       '-c:v', 'libx264',
       '-preset', 'ultrafast',
@@ -239,6 +253,7 @@ export default class LiveCamRoom extends ReadyResource {
   }
 
   async _runBareFFmpeg () {
+    console.log(ffmpeg)
     throw new Error('TODO')
   }
 
