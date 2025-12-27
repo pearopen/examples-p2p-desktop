@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import useWorker from '../lib/use-worker'
 
 function App () {
-  const { videos, messages, addMessage } = useWorker()
+  const { invite, videos, messages, addMessage } = useWorker()
   const videoRef = useRef(null)
   const videosRef = useRef(videos)
 
@@ -50,7 +50,8 @@ function App () {
   return (
     <div className='bg-blue-500 min-h-screen p-4'>
       <div className='bg-white p-4 mb-4'>
-        <video ref={videoRef} controls autoPlay width={640} />
+        <p>Invite: {invite}</p>
+        <video ref={videoRef} controls autoPlay width={480} />
         <div className='mb-2 flex'>
           <input
             type='text'

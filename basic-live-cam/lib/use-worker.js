@@ -10,10 +10,12 @@ const rpc = new HRPC(stream)
 stream.pause()
 
 export default function useWorker () {
+  const [invite, setInvite] = useState('')
   const [videos, setVideos] = useState([])
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
+    rpc.onInvite((data) => setInvite(data))
     rpc.onVideos((data) => setVideos(data))
     rpc.onMessages((data) => setMessages(data))
     stream.resume()
@@ -21,6 +23,7 @@ export default function useWorker () {
   }, [])
 
   return {
+    invite,
     videos,
     messages,
     addMessage: (message) => rpc.addMessage(message)

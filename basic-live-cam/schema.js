@@ -90,6 +90,10 @@ Hyperdispatch.toDisk(hyperdispatch)
 const hrpc = HRPC.from(SCHEMA_DIR, HRPC_DIR)
 const rpc = hrpc.namespace('basic-live-cam')
 rpc.register({
+  name: 'invite',
+  request: { name: 'string', send: true }
+})
+rpc.register({
   name: 'videos',
   request: { name: '@basic-live-cam/videos', send: true }
 })
