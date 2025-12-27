@@ -211,7 +211,7 @@ export default class LiveCamRoom extends ReadyResource {
 
     let ffmpegProc, ffmpegStdout
     try {
-      const res = await _runBareFFmpeg()
+      const res = await this._runBareFFmpeg()
       ffmpegProc = res.ffmpegProc
       ffmpegStdout = res.ffmpegStdout
     } catch (err) {
