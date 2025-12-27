@@ -32,6 +32,7 @@ function App () {
         const res = await fetch(fragment.info.link)
         const data = await res.arrayBuffer()
         sb.appendBuffer(data)
+        video.play()
         await new Promise(resolve => sb.addEventListener('updateend', resolve, { once: true }))
         fragIdx += 1
       }
