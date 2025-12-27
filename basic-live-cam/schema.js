@@ -98,10 +98,6 @@ rpc.register({
   request: { name: '@basic-live-cam/videos', send: true }
 })
 rpc.register({
-  name: 'add-video',
-  request: { name: 'string', send: true }
-})
-rpc.register({
   name: 'messages',
   request: { name: '@basic-live-cam/messages', send: true }
 })

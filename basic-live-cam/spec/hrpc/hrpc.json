@@ -21,15 +21,6 @@
     },
     {
       "id": 2,
-      "name": "@basic-live-cam/add-video",
-      "request": {
-        "name": "string",
-        "send": true
-      },
-      "version": 1
-    },
-    {
-      "id": 3,
       "name": "@basic-live-cam/messages",
       "request": {
         "name": "@basic-live-cam/messages",
@@ -38,7 +29,7 @@
       "version": 1
     },
     {
-      "id": 4,
+      "id": 3,
       "name": "@basic-live-cam/add-message",
       "request": {
         "name": "@basic-live-cam/add-message",

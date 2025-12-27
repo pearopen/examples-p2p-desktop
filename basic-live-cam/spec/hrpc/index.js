@@ -10,12 +10,10 @@ const methods = new Map([
   [0, '@basic-live-cam/invite'],
   ['@basic-live-cam/videos', 1],
   [1, '@basic-live-cam/videos'],
-  ['@basic-live-cam/add-video', 2],
-  [2, '@basic-live-cam/add-video'],
-  ['@basic-live-cam/messages', 3],
-  [3, '@basic-live-cam/messages'],
-  ['@basic-live-cam/add-message', 4],
-  [4, '@basic-live-cam/add-message']
+  ['@basic-live-cam/messages', 2],
+  [2, '@basic-live-cam/messages'],
+  ['@basic-live-cam/add-message', 3],
+  [3, '@basic-live-cam/add-message']
 ])
 
 class HRPC {
@@ -25,7 +23,6 @@ class HRPC {
     this._requestEncodings = new Map([
       ['@basic-live-cam/invite', c.string],
       ['@basic-live-cam/videos', getEncoding('@basic-live-cam/videos')],
-      ['@basic-live-cam/add-video', c.string],
       ['@basic-live-cam/messages', getEncoding('@basic-live-cam/messages')],
       ['@basic-live-cam/add-message', getEncoding('@basic-live-cam/add-message')]
     ])
@@ -135,10 +132,6 @@ class HRPC {
     return this._callSync('@basic-live-cam/videos', args)
   }
 
-  addVideo(args) {
-    return this._callSync('@basic-live-cam/add-video', args)
-  }
-
   messages(args) {
     return this._callSync('@basic-live-cam/messages', args)
   }
@@ -153,10 +146,6 @@ class HRPC {
 
   onVideos(responseFn) {
     this._handlers['@basic-live-cam/videos'] = responseFn
-  }
-
-  onAddVideo(responseFn) {
-    this._handlers['@basic-live-cam/add-video'] = responseFn
   }
 
   onMessages(responseFn) {
@@ -183,7 +172,6 @@ class HRPC {
       // prettier-ignore
       '@basic-live-cam/invite',
       '@basic-live-cam/videos',
-      '@basic-live-cam/add-video',
       '@basic-live-cam/messages',
       '@basic-live-cam/add-message'
     ].includes(command)
