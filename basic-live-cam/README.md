@@ -5,6 +5,7 @@
 - Stack: holepunch, bare, pear, corestore, hyperswarm, blind-pairing, hyperdb, hrpc, autobase, hyperblobs, hypercore-blob-server, bare-ffmpeg
 
 ## Usage
+Install ffmpeg
 
 ```shell
 npm i
