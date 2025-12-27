@@ -51,22 +51,10 @@
       "name": "video",
       "namespace": "basic-live-cam",
       "compact": false,
-      "flagsPosition": 4,
+      "flagsPosition": 2,
       "fields": [
         {
           "name": "id",
-          "required": true,
-          "type": "string",
-          "version": 1
-        },
-        {
-          "name": "name",
-          "required": true,
-          "type": "string",
-          "version": 1
-        },
-        {
-          "name": "type",
           "required": true,
           "type": "string",
           "version": 1

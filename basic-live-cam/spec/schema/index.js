@@ -61,8 +61,6 @@ const encoding1 = {
 const encoding2 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
-    c.string.preencode(state, m.name)
-    c.string.preencode(state, m.type)
     c.json.preencode(state, m.blob)
     state.end++ // max flag is 1 so always one byte
 
@@ -72,8 +70,6 @@ const encoding2 = {
     const flags = m.info ? 1 : 0
 
     c.string.encode(state, m.id)
-    c.string.encode(state, m.name)
-    c.string.encode(state, m.type)
     c.json.encode(state, m.blob)
     c.uint.encode(state, flags)
 
@@ -81,16 +77,12 @@ const encoding2 = {
   },
   decode(state) {
     const r0 = c.string.decode(state)
-    const r1 = c.string.decode(state)
-    const r2 = c.string.decode(state)
-    const r3 = c.json.decode(state)
+    const r1 = c.json.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: r0,
-      name: r1,
-      type: r2,
-      blob: r3,
+      blob: r1,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }

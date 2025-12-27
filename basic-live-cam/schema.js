@@ -29,8 +29,6 @@ schema.register({
   name: 'video',
   fields: [
     { name: 'id', type: 'string', required: true },
-    { name: 'name', type: 'string', required: true },
-    { name: 'type', type: 'string', required: true },
     { name: 'blob', type: 'json', required: true },
     { name: 'info', type: 'json' }
   ]
