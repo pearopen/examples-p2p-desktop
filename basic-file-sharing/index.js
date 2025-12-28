@@ -13,5 +13,5 @@ const pipe = await runtime.start({ bridge })
 const workerTask = await runWorker(pipe)
 pipe.on('close', async () => {
   await workerTask.close()
-  Pear.exit()
+  await bridge.close()
 })
