@@ -1,3 +1,4 @@
+import ui from 'pear-electron'
 import { useEffect, useState, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -9,6 +10,15 @@ function App () {
   const videosRef = useRef(videos)
 
   const [input, setInput] = useState('')
+
+  useEffect(() => {
+    ui.media.status.camera().then(status => {
+      if (status !== 'granted') ui.media.access.camera()
+    })
+    ui.media.status.microphone().then(status => {
+      if (status !== 'granted') ui.media.access.microphone()
+    })
+  }, [])
 
   useEffect(() => {
     videosRef.current = videos
