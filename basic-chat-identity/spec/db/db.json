@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "offset": 0,
+  "schema": [
+    {
+      "name": "invites",
+      "namespace": "basic-chat-identity",
+      "id": 0,
+      "type": 1,
+      "version": 1,
+      "versionField": null,
+      "indexes": [],
+      "schema": "@basic-chat-identity/invite",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    },
+    {
+      "name": "messages",
+      "namespace": "basic-chat-identity",
+      "id": 1,
+      "type": 1,
+      "version": 1,
+      "versionField": null,
+      "indexes": [],
+      "schema": "@basic-chat-identity/message",
+      "derived": false,
+      "key": [
+        "id"
+      ],
+      "trigger": null
+    }
+  ]
+}
