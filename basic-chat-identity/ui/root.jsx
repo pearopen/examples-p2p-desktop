@@ -29,7 +29,7 @@ function App () {
         <h2 className='text-lg font-bold mb-2'>Messages</h2>
         <ul>
           {messages.map((msg, idx) => (
-            <li key={idx} className='border-b py-1'>{`${msg.text} ~ ${msg.info.name} ~ ${new Date(msg.info.at).toISOString()} ~ ${msg.id}`}</li>
+            <li key={idx} className='border-b py-1'>{`[${msg.info.verified ? '✔' : '✘'}] ${msg.text} ~ ${msg.info.name} ~ ${new Date(msg.info.at).toISOString()} ~ ${msg.id}`}</li>
           ))}
         </ul>
       </div>

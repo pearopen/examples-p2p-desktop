@@ -62,6 +62,7 @@ const encoding2 = {
   preencode(state, m) {
     c.string.preencode(state, m.id)
     c.string.preencode(state, m.text)
+    c.buffer.preencode(state, m.proof)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -71,6 +72,7 @@ const encoding2 = {
 
     c.string.encode(state, m.id)
     c.string.encode(state, m.text)
+    c.buffer.encode(state, m.proof)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
@@ -78,11 +80,13 @@ const encoding2 = {
   decode(state) {
     const r0 = c.string.decode(state)
     const r1 = c.string.decode(state)
+    const r2 = c.buffer.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: r0,
       text: r1,
+      proof: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }
@@ -121,6 +125,7 @@ const encoding4 = {
 const encoding5 = {
   preencode(state, m) {
     c.string.preencode(state, m.text)
+    c.buffer.preencode(state, m.proof)
     state.end++ // max flag is 1 so always one byte
 
     if (m.info) c.json.preencode(state, m.info)
@@ -129,17 +134,20 @@ const encoding5 = {
     const flags = m.info ? 1 : 0
 
     c.string.encode(state, m.text)
+    c.buffer.encode(state, m.proof)
     c.uint.encode(state, flags)
 
     if (m.info) c.json.encode(state, m.info)
   },
   decode(state) {
     const r1 = c.string.decode(state)
+    const r2 = c.buffer.decode(state)
     const flags = c.uint.decode(state)
 
     return {
       id: null,
       text: r1,
+      proof: r2,
       info: (flags & 1) !== 0 ? c.json.decode(state) : null
     }
   }

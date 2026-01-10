@@ -146,10 +146,10 @@ export default class ChatRoomIdentity extends ReadyResource {
     return await this.view.find('@basic-chat-identity/messages', { reverse, limit }).toArray()
   }
 
-  async addMessage (text, info) {
+  async addMessage (text, proof, info) {
     const id = Math.random().toString(16).slice(2)
     await this.base.append(
-      ChatDispatch.encode('@basic-chat-identity/add-message', { id, text, info })
+      ChatDispatch.encode('@basic-chat-identity/add-message', { id, text, proof, info })
     )
   }
 }

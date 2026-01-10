@@ -51,7 +51,7 @@
       "name": "message",
       "namespace": "basic-chat-identity",
       "compact": false,
-      "flagsPosition": 2,
+      "flagsPosition": 3,
       "fields": [
         {
           "name": "id",
@@ -63,6 +63,12 @@
           "name": "text",
           "required": true,
           "type": "string",
+          "version": 1
+        },
+        {
+          "name": "proof",
+          "required": true,
+          "type": "buffer",
           "version": 1
         },
         {
